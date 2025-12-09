@@ -1,0 +1,31 @@
+// Variables
+$bg-color: #C0C0C0; // Windows 95/98 Gray
+$text-color: #000000;
+$primary-color: #000080; // Title bar blue
+$primary-text: #FFFFFF;
+$font-family: 'Courier New', Courier, monospace; // Retro terminal feel
+
+// Borders
+$border-light: #FFFFFF;
+$border-dark: #808080;
+$border-darker: #404040;
+
+// Inputs
+$input-bg: #FFFFFF;
+$input-border: #808080;
+
+// Status
+$success-color: #008000;
+$error-color: #FF0000;
+$warning-color: #FFFF00;
+
+// Spacing
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 32px;
+
+// Shadows (Retro 3D effect)
+$shadow-outset: inset 1px 1px #dfdfdf, inset -1px -1px #0a0a0a, inset 2px 2px #fff, inset -2px -2px #808080;
+$shadow-inset: inset 1px 1px #808080, inset -1px -1px #fff, inset 2px 2px #0a0a0a, inset -2px -2px #dfdfdf;

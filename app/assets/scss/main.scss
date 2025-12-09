@@ -1,0 +1,15 @@
+// Main SCSS file
+@use 'variables' as *;
+@use 'mixins' as *;
+
+body {
+    background-color: $bg-color;
+    font-family: $font-family;
+    color: $text-color;
+    margin: 0;
+    padding: 0;
+}
+
+* {
+    box-sizing: border-box;
+}

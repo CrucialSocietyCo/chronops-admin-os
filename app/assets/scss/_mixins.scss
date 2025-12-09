@@ -1,0 +1,62 @@
+@use 'variables' as *;
+
+@mixin retro-border-outset {
+    box-shadow: $shadow-outset;
+    background-color: $bg-color;
+}
+
+@mixin retro-border-inset {
+    box-shadow: $shadow-inset;
+    background-color: $input-bg;
+}
+
+@mixin retro-window {
+    @include retro-border-outset;
+    padding: 2px;
+    display: flex;
+    flex-direction: column;
+}
+
+@mixin retro-title-bar {
+    background: linear-gradient(90deg, $primary-color, lighten($primary-color, 10%));
+    color: $primary-text;
+    padding: 2px 4px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .controls {
+        display: flex;
+        gap: 2px;
+    }
+}
+
+@mixin retro-button {
+    @include retro-border-outset;
+    border: none;
+    padding: 4px 12px;
+    font-family: $font-family;
+    font-size: 14px;
+    cursor: pointer;
+
+    &:active {
+        @include retro-border-inset;
+        background-color: $bg-color; // Keep gray background when pressed
+    }
+
+    &:disabled {
+        color: $border-dark;
+        cursor: not-allowed;
+    }
+}
+
+@mixin retro-input {
+    @include retro-border-inset;
+    border: none;
+    padding: 4px;
+    font-family: $font-family;
+    font-size: 14px;
+    outline: none;
+    width: 100%;
+}

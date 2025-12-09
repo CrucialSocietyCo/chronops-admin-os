@@ -1,0 +1,234 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id              Int       @id @default(autoincrement())
+  name            String
+  email           String    @unique
+  emailVerifiedAt DateTime?
+  password        String
+  rememberToken   String?
+  isAdmin         Boolean   @default(false)
+  lastSeenAt      DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  createdRooms Room[]       @relation("CreatedRooms")
+  memberships  RoomMember[]
+  messages     Message[]
+  reports      Report[]     @relation("Reporter")
+  bans         Ban[]
+  mutes        Mute[]
+}
+
+model Room {
+  id        Int      @id @default(autoincrement())
+  name      String
+  slug      String   @unique
+  isPrivate Boolean  @default(false)
+  createdBy Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  creator User         @relation("CreatedRooms", fields: [createdBy], references: [id])
+  members RoomMember[]
+  messages Message[]
+  bans    Ban[]
+  mutes   Mute[]
+}
+
+model RoomMember {
+  id       Int      @id @default(autoincrement())
+  userId   Int
+  roomId   Int
+  role     String   @default("member") // member, moderator, owner
+  joinedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roomId])
+}
+
+model Message {
+  id         Int      @id @default(autoincrement())
+  roomId     Int
+  userId     Int
+  content    String
+  isFlagged  Boolean  @default(false)
+  flagReason String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  room    Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reports Report[]
+}
+
+model ChatSettings {
+  id                   Int       @id @default(autoincrement())
+  isChatEnabled        Boolean   @default(true)
+  isSchedulingEnabled  Boolean   @default(false)
+  windowStart          DateTime?
+  windowEnd            DateTime?
+  maintenanceMode      Boolean   @default(false)
+  windowTitle          String    @default("Arts and Entertainment - Red Dragon Inn")
+  maxMessageLength     Int       @default(2000)
+  maxMessagesPerMinute Int       @default(30)
+  
+  // Event Modes
+  eventMode String @default("Live Event")
+  
+  // Flow & Safety
+  slowModeInterval      Int     @default(0)
+  burstProtectionEnabled Boolean @default(false)
+  maxBurstMessages      Int     @default(5)
+  autoMuteEnabled       Boolean @default(false)
+  autoMuteViolations    Int     @default(3)
+  allowLinks            Boolean @default(false)
+  allowPixelReactions   Boolean @default(true)
+  profanityFilterEnabled Boolean @default(true)
+  
+  // Admin Signal Tools
+  adminHighlightEnabled Boolean @default(false)
+  topicPromptText       String?
+  
+  // Automations
+  crowdSurgeDetectionEnabled Boolean @default(false)
+  surgeThreshold             Int     @default(100)
+  spamBurstAutoMute          Boolean @default(false)
+  inactivityCleanupEnabled   Boolean @default(false)
+  inactivityCleanupHours     Int     @default(24)
+  
+  // Aesthetic Controls
+  windowBorderStyle   String @default("System95")
+  colorTheme          String @default("Teal Base")
+  scanlineIntensity   Int    @default(0)
+  adminBadgeStyle     String @default("Star Icon")
+  
+  // Event Scheduling
+  scheduledSystemMessagesEnabled Boolean   @default(false)
+  systemMessageContent           String?
+  systemMessagePostTime          DateTime?
+  autoModeTransitionEnabled      Boolean   @default(false)
+  preShowTime                    DateTime?
+  liveEventTime                  DateTime?
+  afterpartyTime                 DateTime?
+
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+}
+
+model SystemSettings {
+  id Int @id @default(autoincrement())
+  
+  appName             String  @default("ChronOps")
+  tagline             String?
+  windowTitleFormat   String  @default("[App Name] – [Chatroom Title]")
+  showBrandingFooter  Boolean @default(true)
+  
+  // Time, Locale & Formatting
+  timezone       String  @default("UTC")
+  timeFormat     String  @default("24-hour")
+  dateFormat     String  @default("YYYY-MM-DD")
+  showSeconds    Boolean @default(false)
+  showTimestamps Boolean @default(true)
+  
+  // Data & Privacy
+  messageRetentionPolicy String  @default("Forever")
+  allowChatLogExport     Boolean @default(false)
+  anonymizeExports       Boolean @default(true)
+  logIpEnabled           Boolean @default(true)
+  
+  // Access & Admin Security
+  adminDisplayName            String  @default("Admin")
+  requirePasswordForDashboard Boolean @default(true)
+  autoLogoutEnabled           Boolean @default(true)
+  idleTimeoutMinutes          Int     @default(15)
+  
+  // Notifications & Alerts
+  notificationEmail   String?
+  alertOnError        Boolean @default(true)
+  alertOnDisconnect   Boolean @default(true)
+  alertOnSurge        Boolean @default(false)
+  soundOnNewMessage   Boolean @default(false)
+  soundOnMention      Boolean @default(true)
+  soundOnWarning      Boolean @default(true)
+  
+  // Startup & Default Behavior
+  defaultEventMode    String  @default("Live Event")
+  autoOpenChat        Boolean @default(true)
+  autoApplySnapshot   Boolean @default(false)
+  showClosedSplash    Boolean @default(true)
+  
+  // Integrations
+  analyticsId       String?
+  webhookUrl        String?
+  sendEventsJoined  Boolean @default(false)
+  sendEventsLeft    Boolean @default(false)
+  sendEventsMessage Boolean @default(false)
+  sendEventsAdmin   Boolean @default(true)
+  
+  // Advanced & Labs
+  experimentalFeatures Boolean @default(false)
+  showDevConsole       Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Ban {
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  roomId    Int?
+  reason    String
+  expiresAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  room Room? @relation(fields: [roomId], references: [id], onDelete: Cascade)
+}
+
+model Mute {
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  roomId    Int?
+  reason    String
+  expiresAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  room Room? @relation(fields: [roomId], references: [id], onDelete: Cascade)
+}
+
+model Report {
+  id         Int      @id @default(autoincrement())
+  messageId  Int
+  reporterId Int
+  reason     String
+  status     String   @default("open") // open, reviewing, resolved, dismissed
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  message  Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  reporter User    @relation("Reporter", fields: [reporterId], references: [id], onDelete: Cascade)
+}
+
+model SystemLog {
+  id        Int      @id @default(autoincrement())
+  type      String // auth, chat, moderation, system, error
+  message   String
+  meta      Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
