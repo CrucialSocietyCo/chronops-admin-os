@@ -105,44 +105,44 @@ export default defineEventHandler(async (event) => {
         if (!userId) throw new Error('Failed to resolve User ID')
 
         // 4. Insert Message
+        // 4. Insert Message
         const payload = {
-            const payload = {
-                room_id: roomId, // Can be null now
-                user_id: userId,
-                content: body.content,
-                event_id: activeEvent?.id || null,
-                chat_mode: currentMode,
-                history_is_visible: true
-            }
-    console.log('[Messages POST] Attempting Insert:', JSON.stringify(payload))
-
-    const { data, error } = await client
-                .from('messages')
-                .insert(payload)
-                .select()
-                .single()
-
-    if(error) {
-                console.error('[Messages POST] INSERT FAILED:', error)
-                throw error
-            }
-
-    console.log('[Messages POST] Success:', data.id)
-
-    return {
-                ...data,
-                sender: senderName,
-                isAdmin: !!user
-            }
-
-        } catch (err: any) {
-            console.error('[Messages POST] CRITICAL FAILURE:', err)
-            throw createError({
-                statusCode: 500,
-                statusMessage: err.message || 'Internal Server Error',
-                data: { message: err.message, details: err }
-            })
+            room_id: roomId, // Can be null now
+            user_id: userId,
+            content: body.content,
+            event_id: activeEvent?.id || null,
+            chat_mode: currentMode,
+            history_is_visible: true
         }
-    })
+        console.log('[Messages POST] Attempting Insert:', JSON.stringify(payload))
+
+        const { data, error } = await client
+            .from('messages')
+            .insert(payload)
+            .select()
+            .single()
+
+        if (error) {
+            console.error('[Messages POST] INSERT FAILED:', error)
+            throw error
+        }
+
+        console.log('[Messages POST] Success:', data.id)
+
+        return {
+            ...data,
+            sender: senderName,
+            isAdmin: !!user
+        }
+
+    } catch (err: any) {
+        console.error('[Messages POST] CRITICAL FAILURE:', err)
+        throw createError({
+            statusCode: 500,
+            statusMessage: err.message || 'Internal Server Error',
+            data: { message: err.message, details: err }
+        })
+    }
+})
 
 
