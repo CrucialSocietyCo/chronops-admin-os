@@ -1,4 +1,4 @@
-import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
+import { serverSupabaseClient, serverSupabaseUser, serverSupabaseServiceRole } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
     const client = await serverSupabaseClient(event)
@@ -86,25 +86,37 @@ export default defineEventHandler(async (event) => {
             // Use time-based suffix to avoid collisions if multiple guests choose same name
             const timestamp = Date.now().toString().slice(-4)
             const sanitizedName = senderName.replace(/[^a-zA-Z0-9]/g, '').toLowerCase() || 'guest'
-            const guestEmail = `guest_${sanitizedName}_${timestamp}@chronops.local`
+            const cleanEmail = `guest_${sanitizedName}_${timestamp}@chronops.local`
 
-            // We simplify logic: Always create a new "Session User" for this specific chat instance?
-            // Actually, let's keep it consistent: name -> email mapping
-            // But without the space!
-            const cleanEmail = `guest_${sanitizedName}@chronops.local`
-
+            // Check if user exists (Reader Client is fine for SELECT if public policy exists)
             const { data: guestUser } = await client.from('users').select('id').eq('email', cleanEmail).single()
+
             if (guestUser) {
                 userId = guestUser.id
             } else {
-                const { data: newGuest, error: guestError } = await client.from('users').insert({
-                    name: senderName,
-                    email: cleanEmail,
-                    supabase_user_id: null
-                }).select().single()
+                // INSERT requires Service Role because Public cannot INSERT into users
+                const serviceClient = serverSupabaseServiceRole(event)
 
-                if (guestError) console.error('[Messages POST] Guest Creation Error:', guestError)
-                userId = newGuest?.id
+                if (!serviceClient) {
+                    console.error('[Messages POST] Service Role Client missing! Guest creation will likely fail via RLS.')
+                    // Fallback to standard client just in case they added RLS policy
+                    const { data: newGuest, error: guestError } = await client.from('users').insert({
+                        name: senderName,
+                        email: cleanEmail,
+                        supabase_user_id: null
+                    }).select().single()
+                    if (guestError) console.error('[Messages POST] Guest Creation Error (Public):', guestError)
+                    userId = newGuest?.id
+                } else {
+                    const { data: newGuest, error: guestError } = await serviceClient.from('users').insert({
+                        name: senderName,
+                        email: cleanEmail,
+                        supabase_user_id: null
+                    }).select().single()
+
+                    if (guestError) console.error('[Messages POST] Guest Creation Error (ServiceRole):', guestError)
+                    userId = newGuest?.id
+                }
             }
         }
 
