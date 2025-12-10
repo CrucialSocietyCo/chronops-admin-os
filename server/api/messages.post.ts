@@ -41,99 +41,92 @@ export default defineEventHandler(async (event) => {
         const { data: settings } = await client.from('chat_settings').select('event_mode').single()
         const currentMode = settings?.event_mode || 'Live Event'
 
-        // 2. Room Resolution
-        let { data: room, error: roomError } = await client
-            .from('rooms')
-            .select('id')
-            .eq('slug', 'general')
-            .single()
-
-        if (!room) {
-            console.log('[Messages POST] General room not found. Attempting creation...')
-            // Try to create if missing (Note: Might fail due to RLS, but we try)
-            const { data: newRoom, error: createError } = await client
+        // 2. Room Resolution (Optional)
+        let roomId = null
+        try {
+            const { data: room, error: roomError } = await client
                 .from('rooms')
-                .insert({ name: 'General', slug: 'general', is_private: false })
-                .select()
+                .select('id')
+                .eq('slug', 'general') // We still try to find 'general' just in case the DB needs it
                 .single()
 
-            if (createError) {
-                console.error('[Messages POST] Room Creation Failed:', createError)
-                throw new Error('General room missing and could not be created: ' + createError.message)
-            }
-            room = newRoom;
+            console.error('[Messages POST] Room Creation Failed:', createError)
+            throw new Error('General room missing and could not be created: ' + createError.message)
         }
+            room = newRoom;
+    }
         console.log('[Messages POST] Target Room ID:', room?.id)
 
-        // 3. User Resolution
-        let userId = null
+    // 3. User Resolution
+    let userId = null
 
-        if (user) {
-            console.log('[Messages POST] Auth User Detected:', user.id)
-            const { data: publicUser } = await client.from('users').select('id').eq('supabase_user_id', user.id).single()
+    if (user) {
+        console.log('[Messages POST] Auth User Detected:', user.id)
+        const { data: publicUser } = await client.from('users').select('id').eq('supabase_user_id', user.id).single()
 
-            if (publicUser) {
-                userId = publicUser.id
-            } else {
-                console.log('[Messages POST] Creating Public Profile for Admin...')
-                const { data: newPub, error: pubError } = await client.from('users').insert({
-                    supabase_user_id: user.id,
-                    name: 'Admin',
-                    email: user.email,
-                    is_admin: true
-                }).select().single()
-
-                if (pubError) console.error('[Messages POST] Public Profile Creation Error:', pubError)
-                userId = newPub?.id
-            }
+        if (publicUser) {
+            userId = publicUser.id
         } else {
-            console.log('[Messages POST] Guest User Detected. Resolving Guest Profile...')
-            const sanitizedName = senderName.replace(/[^a-zA-Z0-9]/g, '').toLowerCase() || 'guest'
-            const guestEmail = `guest_${sanitizedName} @chronops.local`
+            console.log('[Messages POST] Creating Public Profile for Admin...')
+            const { data: newPub, error: pubError } = await client.from('users').insert({
+                supabase_user_id: user.id,
+                name: 'Admin',
+                email: user.email,
+                is_admin: true
+            }).select().single()
 
-            const { data: guestUser } = await client.from('users').select('id').eq('email', guestEmail).single()
-            if (guestUser) {
-                userId = guestUser.id
-            } else {
-                const { data: newGuest, error: guestError } = await client.from('users').insert({
-                    name: senderName,
-                    email: guestEmail,
-                    supabase_user_id: null
-                }).select().single()
-
-                if (guestError) console.error('[Messages POST] Guest Creation Error:', guestError)
-                userId = newGuest?.id
-            }
+            if (pubError) console.error('[Messages POST] Public Profile Creation Error:', pubError)
+            userId = newPub?.id
         }
+    } else {
+        console.log('[Messages POST] Guest User Detected. Resolving Guest Profile...')
+        const sanitizedName = senderName.replace(/[^a-zA-Z0-9]/g, '').toLowerCase() || 'guest'
+        const guestEmail = `guest_${sanitizedName} @chronops.local`
 
-        console.log('[Messages POST] Final Resolved User ID:', userId)
-        if (!userId) throw new Error('Failed to resolve User ID')
+        const { data: guestUser } = await client.from('users').select('id').eq('email', guestEmail).single()
+        if (guestUser) {
+            userId = guestUser.id
+        } else {
+            const { data: newGuest, error: guestError } = await client.from('users').insert({
+                name: senderName,
+                email: guestEmail,
+                supabase_user_id: null
+            }).select().single()
 
-        // 4. Insert Message
+            if (guestError) console.error('[Messages POST] Guest Creation Error:', guestError)
+            userId = newGuest?.id
+        }
+    }
+
+    console.log('[Messages POST] Final Resolved User ID:', userId)
+    if (!userId) throw new Error('Failed to resolve User ID')
+
+    // 4. Insert Message
+    const payload = {
         const payload = {
-            room_id: room.id,
+            room_id: roomId, // Can be null now
             user_id: userId,
             content: body.content,
             event_id: activeEvent?.id || null,
             chat_mode: currentMode,
             history_is_visible: true
         }
-        console.log('[Messages POST] Attempting Insert:', JSON.stringify(payload))
+    console.log('[Messages POST] Attempting Insert:', JSON.stringify(payload))
 
-        const { data, error } = await client
+    const { data, error } = await client
             .from('messages')
             .insert(payload)
             .select()
             .single()
 
-        if (error) {
+    if(error) {
             console.error('[Messages POST] INSERT FAILED:', error)
             throw error
         }
 
-        console.log('[Messages POST] Success:', data.id)
+    console.log('[Messages POST] Success:', data.id)
 
-        return {
+    return {
             ...data,
             sender: senderName,
             isAdmin: !!user
