@@ -9,6 +9,13 @@ export default defineNuxtConfig({
     // types: './app/types/database.types.ts',
   },
 
+
+  runtimeConfig: {
+    public: {
+      chatUrl: process.env.NUXT_PUBLIC_CHAT_URL || 'http://localhost:5173'
+    }
+  },
+
   css: ['~/assets/scss/main.scss'],
 
   routeRules: {

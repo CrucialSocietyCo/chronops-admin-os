@@ -137,7 +137,8 @@ const toggleChat = async () => {
 const enterChatAsAdmin = async () => {
   try {
     // Open IMMEDIATELY to bypass browser popup blockers
-    window.open('http://localhost:5173', '_blank')
+    const config = useRuntimeConfig()
+    window.open(config.public.chatUrl, '_blank')
   } catch (e) {
     console.error('Failed to open chat', e)
   }
