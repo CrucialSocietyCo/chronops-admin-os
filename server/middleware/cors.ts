@@ -5,7 +5,7 @@ export default defineEventHandler((event) => {
     ]
     const origin = getRequestHeader(event, 'origin')
 
-    if (origin && allowedOrigins.includes(origin)) {
+    if (origin && (allowedOrigins.includes(origin) || origin.endsWith('.vercel.app'))) {
         setResponseHeaders(event, {
             'Access-Control-Allow-Origin': origin,
             'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
