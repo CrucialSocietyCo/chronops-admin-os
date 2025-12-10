@@ -1,5 +1,5 @@
 <template>
-  <div class="admin-desktop">
+  <div class="admin-desktop" :style="{ backgroundColor: backgroundColor }">
     <div class="address-bar">
       <span class="address-label">Address</span>
       <div class="address-input">
@@ -23,6 +23,9 @@
           <nav class="nav-menu">
             <NuxtLink to="/admin/dashboard" class="nav-item" active-class="active">
               <span class="icon">📊</span> Dashboard
+            </NuxtLink>
+            <NuxtLink to="/admin/events" class="nav-item" active-class="active">
+              <span class="icon">📅</span> Event Management
             </NuxtLink>
             <NuxtLink to="/admin/users" class="nav-item" active-class="active">
               <span class="icon">👥</span> Users
@@ -89,6 +92,19 @@ let timer: NodeJS.Timer
 const isChatEnabled = ref(false)
 const settingsId = ref<number | null>(null)
 
+// Shared Theme State
+const currentTheme = useState('adminTheme', () => 'Teal Base')
+
+const themeMap: Record<string, string> = {
+  'Teal Base': '#008080',
+  'Graphite': '#2F4F4F',
+  'Noir Terminal': '#000000',
+  'CRT Glow': '#1a0526' 
+}
+
+const backgroundColor = computed(() => themeMap[currentTheme.value] || '#008080')
+
+
 const fetchSettings = async () => {
   try {
     const data = await $fetch('/api/admin/house-controls')
@@ -120,13 +136,10 @@ const toggleChat = async () => {
 
 const enterChatAsAdmin = async () => {
   try {
-    // Call API to activate admin mode on server session
-    await $fetch('/api/admin/activate-mode', { method: 'POST' })
-    // Use Nuxt router to navigate safely
-    await navigateTo('/')
+    // Open IMMEDIATELY to bypass browser popup blockers
+    window.open('http://localhost:5173', '_blank')
   } catch (e) {
-    console.error('Failed to activate admin mode', e)
-    alert('Failed to enter admin chat mode')
+    console.error('Failed to open chat', e)
   }
 }
 
@@ -170,10 +183,17 @@ const breadcrumbs = computed(() => {
   return crumbs
 })
 
-onMounted(() => {
+onMounted(async () => {
   updateTime()
   fetchSettings()
   timer = setInterval(updateTime, 1000)
+  // Initial fetch for theme
+  const { data } = await useFetch('/api/admin/house-controls')
+  if (data.value) {
+    if (data.value.is_chat_enabled !== undefined) isChatEnabled.value = data.value.is_chat_enabled
+    if (data.value.id) settingsId.value = data.value.id
+    if (data.value.color_theme) currentTheme.value = data.value.color_theme
+  }
 })
 
 onUnmounted(() => {
@@ -186,10 +206,11 @@ onUnmounted(() => {
 
 .admin-desktop {
   height: 100vh;
-  background-color: #008080;
+  /* Dynamic style handled in template */
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  transition: background-color 0.5s ease;
 }
 
 .main-container {

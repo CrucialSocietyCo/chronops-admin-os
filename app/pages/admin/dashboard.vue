@@ -125,12 +125,16 @@ const settings = ref({
   admin_badge_style: 'Star Icon'
 })
 
+const currentTheme = useState('adminTheme')
+
 const fetchSettings = async () => {
   try {
     const data = await $fetch('/api/admin/house-controls')
     if (data) {
       if (data.event_mode) eventMode.value = data.event_mode
       settings.value = { ...settings.value, ...data }
+      // Sync state for immediate preview on load
+      if (data.color_theme) currentTheme.value = data.color_theme
     }
   } catch (e) {
     console.error('Failed to load settings', e)
@@ -161,6 +165,12 @@ const saveSettings = async () => {
       method: 'POST',
       body: settings.value
     })
+    
+    // Update shared state for immediate background change
+    if (settings.value.color_theme) {
+      currentTheme.value = settings.value.color_theme
+    }
+
     saveMessage.value = 'Theme Applied!'
     setTimeout(() => saveMessage.value = '', 3000)
   } catch (e) {
