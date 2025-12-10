@@ -1,8 +1,9 @@
-import { serverSupabaseClient } from '#supabase/server'
+import { serverSupabaseServiceRole } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
-    const client = await serverSupabaseClient(event)
-    const urlQuery = getQuery(event) // Renamed to avoid conflict with Supabase query builder
+    // Use Service Role to bypass RLS policies for public chat fetch
+    const client = await serverSupabaseServiceRole(event)
+    const urlQuery = getQuery(event)
     const since = urlQuery.since ? parseInt(urlQuery.since as string) : 0
 
     // 1. Get Active Event
