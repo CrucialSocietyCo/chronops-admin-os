@@ -138,7 +138,15 @@ const enterChatAsAdmin = async () => {
   try {
     // Open IMMEDIATELY to bypass browser popup blockers
     const config = useRuntimeConfig()
-    window.open(config.public.chatUrl, '_blank')
+    const session = useSupabaseSession()
+    
+    // Construct URL with auth_token
+    const url = new URL(config.public.chatUrl)
+    if (session.value?.access_token) {
+      url.searchParams.set('auth_token', session.value.access_token)
+    }
+    
+    window.open(url.toString(), '_blank')
   } catch (e) {
     console.error('Failed to open chat', e)
   }

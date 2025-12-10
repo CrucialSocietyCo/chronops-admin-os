@@ -2,9 +2,25 @@ import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
     const client = await serverSupabaseClient(event)
-    const user = await serverSupabaseUser(event)
+    let user = await serverSupabaseUser(event)
+
+    // If cookie auth failed, try Bearer token from header
+    if (!user) {
+        const authHeader = getRequestHeader(event, 'Authorization')
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+            const token = authHeader.split(' ')[1]
+            const { data, error } = await client.auth.getUser(token) // Verify token manually
+            if (data?.user) {
+                user = data.user
+            }
+        }
+    }
+
     const body = await readBody(event)
-    console.log('[POST /api/messages] Body:', body)
+    // const headers = getRequestHeaders(event)
+
+    // console.log('[POST /api/messages] Body:', body)
+    // console.log('[POST /api/messages] Supabase User:', user?.id || 'null')
 
     if (!body.content || !body.sender) {
         return { error: 'Missing content or sender' }
@@ -148,6 +164,7 @@ export default defineEventHandler(async (event) => {
     // Transform for frontend
     return {
         ...data,
-        sender: senderName // We resolved this earlier
+        sender: senderName, // We resolved this earlier
+        isAdmin: !!user // If we resolved a user from token, they are Admin
     }
 })

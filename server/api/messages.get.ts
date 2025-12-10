@@ -58,17 +58,17 @@ export default defineEventHandler(async (event) => {
 
     // 3. User Mapping (Manual Join fallback)
     const userIds = [...new Set(messages.map((m: any) => m.user_id).filter(Boolean))]
-    let userMap: Record<number, string> = {}
+    let userMap: Record<number, { name: string, isAdmin: boolean }> = {}
 
     if (userIds.length > 0) {
         const { data: usersData } = await client
             .from('users')
-            .select('id, name')
+            .select('id, name, is_admin')
             .in('id', userIds)
 
         if (usersData) {
             usersData.forEach((u: any) => {
-                userMap[u.id] = u.name
+                userMap[u.id] = { name: u.name, isAdmin: u.is_admin }
             })
         }
     }
@@ -76,7 +76,8 @@ export default defineEventHandler(async (event) => {
     // Transform for frontend
     return messages.reverse().map((msg: any) => ({
         id: msg.id,
-        sender: userMap[msg.user_id] || 'Unknown', // Use manual map
+        sender: userMap[msg.user_id]?.name || 'Unknown', // Use manual map
+        isAdmin: userMap[msg.user_id]?.isAdmin === true,
         content: msg.content,
         color: 'white',
         type: 'user',
