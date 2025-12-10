@@ -148,6 +148,7 @@ export default defineEventHandler(async (event) => {
         .from('messages')
         .insert({
             room_id: room.id,
+            user_id: userId,
             content: body.content,
             event_id: activeEvent?.id || null,
             chat_mode: currentMode,
