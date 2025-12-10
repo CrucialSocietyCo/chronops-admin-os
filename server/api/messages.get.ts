@@ -27,21 +27,27 @@ export default defineEventHandler(async (event) => {
         .order('created_at', { ascending: false })
         .limit(100)
 
-    // Filter by Room ID if available (Safety)
+    // Always safety filter by room
     if (roomId) {
         messagesQueryBuilder = messagesQueryBuilder.eq('room_id', roomId)
     }
 
     if (activeEvent) {
-        // Only strictly hide history if the event EXPLICITLY says "Hide History"
+        // If history is hidden AND it's a fresh load (since=0), return empty (Security Feature)
         if (!activeEvent.show_chat_history && since === 0) {
             console.warn('[Messages GET] History Hidden by Event Settings')
             return []
         }
-    }
 
-    // REMOVED: Filtering by event_id. 
-    // This allows messages to persist across different events (Single Chatroom model).
+        // SCOPE TO ACTIVE EVENT
+        console.log(`[Messages GET] Filtering by Event ID: ${activeEvent.id}`)
+        messagesQueryBuilder = messagesQueryBuilder.eq('event_id', activeEvent.id)
+    } else {
+        // No active event: Show messages with NULL event_id (or show nothing?)
+        // If we want "New Event = New History", then "No Event" should probably show "No Event" messages or nothing.
+        console.log('[Messages GET] No Active Event. Filtering by event_id IS NULL')
+        messagesQueryBuilder = messagesQueryBuilder.is('event_id', null)
+    }
 
     if (since > 0) {
         const sinceDate = new Date(since).toISOString()
