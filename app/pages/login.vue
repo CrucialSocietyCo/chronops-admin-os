@@ -122,12 +122,29 @@ const handleLogin = async () => {
 
     if (authError) throw authError
 
-    navigateTo('/admin/dashboard')
+    // Wait for state update
+    const user = useSupabaseUser()
+    if (user.value) {
+        navigateTo('/admin/dashboard')
+    } else {
+        // Watch for change
+        const unwatch = watch(user, (newUser) => {
+            if (newUser) {
+                unwatch()
+                navigateTo('/admin/dashboard')
+            }
+        })
+        // Fallback if it never updates (rare)
+        setTimeout(() => {
+             if (useSupabaseUser().value) navigateTo('/admin/dashboard')
+        }, 1000)
+    }
+
   } catch (e: any) {
     error.value = e.message
-  } finally {
-    loading.value = false
+    loading.value = false // Ensure we stop loading on error
   }
+  // Do not stop loading on success to prevent flashes
 }
 </script>
 
