@@ -95,18 +95,30 @@ export default defineEventHandler(async (event) => {
                 userId = guestUser.id
             } else {
                 // INSERT requires Service Role because Public cannot INSERT into users
-                const serviceClient = serverSupabaseServiceRole(event)
+                // However, serverSupabaseServiceRole THROWS if the key is missing.
+                // We must catch that specific error to allow fallback to Public Insert (if RLS allows it).
+                let serviceClient = null
+                try {
+                    serviceClient = serverSupabaseServiceRole(event)
+                } catch (e) {
+                    console.warn('[Messages POST] Service Role check failed (Key missing?):', e.message)
+                }
 
                 if (!serviceClient) {
-                    console.error('[Messages POST] Service Role Client missing! Guest creation will likely fail via RLS.')
-                    // Fallback to standard client just in case they added RLS policy
+                    console.warn('[Messages POST] Service Role unavailable. Attempting Public Insert (Requires RLS Policy)...')
+                    // Fallback to standard client
                     const { data: newGuest, error: guestError } = await client.from('users').insert({
                         name: senderName,
                         email: cleanEmail,
                         supabase_user_id: null
                     }).select().single()
-                    if (guestError) console.error('[Messages POST] Guest Creation Error (Public):', guestError)
-                    userId = newGuest?.id
+
+                    if (guestError) {
+                        console.error('[Messages POST] Guest Creation Error (Public):', guestError)
+                        // This will flow down to "Failed to resolve User ID"
+                    } else {
+                        userId = newGuest?.id
+                    }
                 } else {
                     const { data: newGuest, error: guestError } = await serviceClient.from('users').insert({
                         name: senderName,
