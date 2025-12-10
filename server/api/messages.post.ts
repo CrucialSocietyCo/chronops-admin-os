@@ -59,9 +59,9 @@ export default defineEventHandler(async (event) => {
 
             if (createError) {
                 console.error('[Messages POST] Room Creation Failed:', createError)
-                throw new Error(`General room missing and could not be created: ${createError.message}`)
+                throw new Error('General room missing and could not be created: ' + createError.message)
             }
-            room = newRoom
+            room = newRoom;
         }
         console.log('[Messages POST] Target Room ID:', room?.id)
 
@@ -89,7 +89,7 @@ export default defineEventHandler(async (event) => {
         } else {
             console.log('[Messages POST] Guest User Detected. Resolving Guest Profile...')
             const sanitizedName = senderName.replace(/[^a-zA-Z0-9]/g, '').toLowerCase() || 'guest'
-            const guestEmail = `guest_${sanitizedName}@chronops.local`
+            const guestEmail = `guest_${sanitizedName} @chronops.local`
 
             const { data: guestUser } = await client.from('users').select('id').eq('email', guestEmail).single()
             if (guestUser) {
@@ -148,15 +148,11 @@ export default defineEventHandler(async (event) => {
         })
     }
 })
-// If cookie auth failed, try Bearer token from header
-if (!user) {
-    const authHeader = getRequestHeader(event, 'Authorization')
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-        const token = authHeader.split(' ')[1]
-        const { data, error } = await client.auth.getUser(token) // Verify token manually
-        if (data?.user) {
-            user = data.user
-        }
+const token = authHeader.split(' ')[1]
+const { data, error } = await client.auth.getUser(token) // Verify token manually
+if (data?.user) {
+    user = data.user
+}
     }
 }
 
@@ -233,4 +229,4 @@ try {
         data: err // Pass full error object for debugging
     })
 }
-})
+
