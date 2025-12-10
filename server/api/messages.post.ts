@@ -83,16 +83,23 @@ export default defineEventHandler(async (event) => {
             }
         } else {
             console.log('[Messages POST] Guest User Detected. Resolving Guest Profile...')
+            // Use time-based suffix to avoid collisions if multiple guests choose same name
+            const timestamp = Date.now().toString().slice(-4)
             const sanitizedName = senderName.replace(/[^a-zA-Z0-9]/g, '').toLowerCase() || 'guest'
-            const guestEmail = `guest_${sanitizedName} @chronops.local`
+            const guestEmail = `guest_${sanitizedName}_${timestamp}@chronops.local`
 
-            const { data: guestUser } = await client.from('users').select('id').eq('email', guestEmail).single()
+            // We simplify logic: Always create a new "Session User" for this specific chat instance?
+            // Actually, let's keep it consistent: name -> email mapping
+            // But without the space!
+            const cleanEmail = `guest_${sanitizedName}@chronops.local`
+
+            const { data: guestUser } = await client.from('users').select('id').eq('email', cleanEmail).single()
             if (guestUser) {
                 userId = guestUser.id
             } else {
                 const { data: newGuest, error: guestError } = await client.from('users').insert({
                     name: senderName,
-                    email: guestEmail,
+                    email: cleanEmail,
                     supabase_user_id: null
                 }).select().single()
 
@@ -104,7 +111,6 @@ export default defineEventHandler(async (event) => {
         console.log('[Messages POST] Final Resolved User ID:', userId)
         if (!userId) throw new Error('Failed to resolve User ID')
 
-        // 4. Insert Message
         // 4. Insert Message
         const payload = {
             room_id: roomId, // Can be null now
