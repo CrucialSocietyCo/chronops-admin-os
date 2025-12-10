@@ -49,6 +49,7 @@
               <td>{{ new Date(event.created_at).toLocaleDateString() }}</td>
               <td class="actions">
                 <RetroButton v-if="!event.is_active" @click="activateEvent(event)" small>▶ Activate</RetroButton>
+                <RetroButton v-else @click="deactivateEvent(event)" small>⏹ Stop</RetroButton>
                 <RetroButton @click="exportChat(event)" small>💾 Export</RetroButton>
               </td>
             </tr>
@@ -115,6 +116,18 @@ const activateEvent = async (event: any) => {
     loadEvents()
   } catch (err: any) {
     alert('Error activating event: ' + err.message)
+  }
+}
+
+const deactivateEvent = async (event: any) => {
+  try {
+    await $fetch(`/api/events/${event.id}`, {
+      method: 'PUT',
+      body: { is_active: false }
+    })
+    loadEvents()
+  } catch (err: any) {
+    alert('Error deactivating event: ' + err.message)
   }
 }
 
