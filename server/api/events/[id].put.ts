@@ -13,14 +13,14 @@ export default defineEventHandler(async (event) => {
     if (body.is_active === true) {
         console.log(`[Events API] Activating Event ${id}. Deactivating others...`)
 
+        // Safety: Update ALL other events to inactive
         const { error: deactivateError } = await client
             .from('events')
             .update({ is_active: false })
-            .neq('id', parseInt(id)) // Allow the API to set the Target to true in the next step, but ensure others are false.
+            .neq('id', id) // Use raw ID (string) to support both UUIDs and Ints safely
 
         if (deactivateError) {
             console.error('[Events API] Failed to deactivate other events:', deactivateError)
-            throw createError({ statusCode: 500, statusMessage: 'Failed to deactivate concurrent events' })
         }
     }
 
