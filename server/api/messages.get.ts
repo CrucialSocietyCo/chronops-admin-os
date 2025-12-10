@@ -6,15 +6,15 @@ export default defineEventHandler(async (event) => {
     const since = urlQuery.since ? parseInt(urlQuery.since as string) : 0
 
     // 1. Get Active Event
+    console.log('[Messages GET] Starting Fetch...')
+
     const { data: activeEvent } = await client
         .from('events')
         .select('id, show_chat_history')
         .eq('is_active', true)
         .single()
 
-    // Default to handling 'no event' logic (maybe show nothing or general?)
-    // For now, if no active event, we might show nothing or general messages (event_id is null)
-    // Let's assume if no event, we show General room messages without event_id
+    console.log('[Messages GET] Active Event:', activeEvent ? `ID ${activeEvent.id} (History: ${activeEvent.show_chat_history})` : 'None')
 
     let messagesQueryBuilder = client
         .from('messages')
@@ -23,14 +23,16 @@ export default defineEventHandler(async (event) => {
         .limit(100)
 
     if (activeEvent) {
-        // If history is hidden AND it's a fresh load (since=0), return empty.
-        // If since > 0, it means the client is polling for NEW messages (Realtime Context), so let them through.
+        // If history is hidden AND it's a fresh load (since=0), return empty (Security Feature)
         if (!activeEvent.show_chat_history && since === 0) {
+            console.warn('[Messages GET] History Hidden by Event Settings')
             return []
         }
+        console.log(`[Messages GET] Filtering by Event ID: ${activeEvent.id}`)
         messagesQueryBuilder = messagesQueryBuilder.eq('event_id', activeEvent.id)
     } else {
         // No active event: Show messages with NULL event_id
+        console.log('[Messages GET] No Active Event. Filtering by event_id IS NULL')
         messagesQueryBuilder = messagesQueryBuilder.is('event_id', null)
     }
 
@@ -42,17 +44,11 @@ export default defineEventHandler(async (event) => {
     const { data: messages, error } = await messagesQueryBuilder
 
     if (error) {
-        console.error('Error fetching messages:', error)
+        console.error('[Messages GET] Supabase Error:', error)
         return []
     }
 
-    // DEBUG LOG
-    if (since > 0) {
-        console.log(`[Messages API] Polling since ${new Date(since).toISOString()} (Timestamp: ${since}). Found: ${messages?.length || 0}`)
-        if (messages && messages.length > 0) {
-            console.log(`[Messages API] First found: ${messages[0].created_at}`)
-        }
-    }
+    console.log(`[Messages GET] Found ${messages?.length || 0} messages.`)
 
     if (!messages || messages.length === 0) return []
 
