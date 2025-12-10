@@ -5,16 +5,21 @@ export default defineEventHandler(async (event) => {
     const urlQuery = getQuery(event) // Renamed to avoid conflict with Supabase query builder
     const since = urlQuery.since ? parseInt(urlQuery.since as string) : 0
 
-    // 1. Get Active Event
+    // 1. Get Context (Active Event) - Just for history settings, not filtering
     console.log('[Messages GET] Starting Fetch...')
 
+    // We still check the event to respect "show_chat_history" boolean
     const { data: activeEvent } = await client
         .from('events')
         .select('id, show_chat_history')
         .eq('is_active', true)
         .single()
 
-    console.log('[Messages GET] Active Event:', activeEvent ? `ID ${activeEvent.id} (History: ${activeEvent.show_chat_history})` : 'None')
+    console.log('[Messages GET] Active Event Context:', activeEvent ? `ID ${activeEvent.id}` : 'None')
+
+    // 2. Get General Room ID
+    const { data: room } = await client.from('rooms').select('id').eq('slug', 'general').single()
+    const roomId = room?.id
 
     let messagesQueryBuilder = client
         .from('messages')
@@ -22,19 +27,21 @@ export default defineEventHandler(async (event) => {
         .order('created_at', { ascending: false })
         .limit(100)
 
+    // Filter by Room ID if available (Safety)
+    if (roomId) {
+        messagesQueryBuilder = messagesQueryBuilder.eq('room_id', roomId)
+    }
+
     if (activeEvent) {
-        // If history is hidden AND it's a fresh load (since=0), return empty (Security Feature)
+        // Only strictly hide history if the event EXPLICITLY says "Hide History"
         if (!activeEvent.show_chat_history && since === 0) {
             console.warn('[Messages GET] History Hidden by Event Settings')
             return []
         }
-        console.log(`[Messages GET] Filtering by Event ID: ${activeEvent.id}`)
-        messagesQueryBuilder = messagesQueryBuilder.eq('event_id', activeEvent.id)
-    } else {
-        // No active event: Show messages with NULL event_id
-        console.log('[Messages GET] No Active Event. Filtering by event_id IS NULL')
-        messagesQueryBuilder = messagesQueryBuilder.is('event_id', null)
     }
+
+    // REMOVED: Filtering by event_id. 
+    // This allows messages to persist across different events (Single Chatroom model).
 
     if (since > 0) {
         const sinceDate = new Date(since).toISOString()
