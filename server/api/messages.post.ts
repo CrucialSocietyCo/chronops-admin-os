@@ -1,11 +1,7 @@
-import { serverSupabaseClient, serverSupabaseUser, serverSupabaseServiceRole } from '#supabase/server'
+import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
-    // Client for Auth Verification (scoped to user/anon)
-    const authClient = await serverSupabaseClient(event)
-    // Service Role Client for DB Operations (Bypass RLS)
-    const client = await serverSupabaseServiceRole(event)
-
+    const client = await serverSupabaseClient(event)
     let user = await serverSupabaseUser(event)
 
     // If cookie auth failed, try Bearer token from header
@@ -13,7 +9,7 @@ export default defineEventHandler(async (event) => {
         const authHeader = getRequestHeader(event, 'Authorization')
         if (authHeader && authHeader.startsWith('Bearer ')) {
             const token = authHeader.split(' ')[1]
-            const { data, error } = await authClient.auth.getUser(token) // Verify token manually using Auth Client
+            const { data, error } = await client.auth.getUser(token) // Verify token manually
             if (data?.user) {
                 user = data.user
             }
