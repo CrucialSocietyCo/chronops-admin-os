@@ -16,6 +16,15 @@ export default defineNuxtConfig({
     }
   },
 
+  app: {
+    head: {
+      title: 'Society on South Main - Admin',
+      link: [
+        { rel: 'icon', type: 'image/jpeg', href: '/favicon_admin.jpg' }
+      ]
+    }
+  },
+
   css: ['~/assets/scss/main.scss'],
 
   routeRules: {
