@@ -22,7 +22,8 @@ create policy "Admins can view all events"
   using (
     exists (
       select 1 from public.users 
-      where id = auth.uid() and role in ('admin', 'superadmin')
+      where supabase_user_id = auth.uid() 
+      and is_admin = true
     )
   );
 
