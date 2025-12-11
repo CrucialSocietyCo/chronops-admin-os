@@ -159,6 +159,23 @@ export default defineEventHandler(async (event) => {
 
         console.log('[Messages POST] Success:', data.id)
 
+        // LOG ANALYTICS EVENT (Fire and Forget)
+        try {
+            await client.from('app_events').insert({
+                event_type: 'message_sent',
+                user_id: userId,
+                room_id: roomId?.toString(), // Ensure string if needed, or update schema to int if preferred. Schema said text.
+                payload: {
+                    message_id: data.id,
+                    content: body.content,
+                    sender: senderName,
+                    is_admin: !!user
+                }
+            })
+        } catch (logErr) {
+            console.error('[Messages POST] Failed to log analytics event:', logErr)
+        }
+
         return {
             ...data,
             sender: senderName,
