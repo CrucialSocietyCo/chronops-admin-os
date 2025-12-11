@@ -24,6 +24,9 @@
             <NuxtLink to="/admin/dashboard" class="nav-item" active-class="active">
               <span class="icon">📊</span> Dashboard
             </NuxtLink>
+            <NuxtLink to="/admin/analytics" class="nav-item" active-class="active">
+              <span class="icon">📈</span> Live Analytics
+            </NuxtLink>
             <NuxtLink to="/admin/events" class="nav-item" active-class="active">
               <span class="icon">📅</span> Event Management
             </NuxtLink>
