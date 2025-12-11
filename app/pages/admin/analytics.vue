@@ -37,7 +37,7 @@
 
     <!-- Bottom Row: Daily + Recent Activity -->
     <div class="bottom-row">
-      <WindowFrame title="Daily Activity (14 Days)" class="chart-card flex-2">
+      <WindowFrame title="Daily Activity (14 Days)" class="chart-card daily-chart">
         <ClientOnly fallback-tag="div" fallback="Loading Chart...">
           <DailyActivityChart 
             :days="dailyStats.days"
@@ -47,7 +47,7 @@
         </ClientOnly>
       </WindowFrame>
 
-      <WindowFrame title="Recent Activity Feed" class="feed-card flex-1">
+      <WindowFrame title="Recent Activity Feed" class="feed-card">
         <RecentActivityFeed :events="recentEvents" />
       </WindowFrame>
     </div>
@@ -142,3 +142,61 @@ onUnmounted(() => {
 })
 
 </script>
+
+<style lang="scss" scoped>
+.analytics-dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    height: 100%;
+    overflow-y: auto;
+    padding-bottom: 30px;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.page-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+    text-shadow: 2px 2px #000;
+}
+
+/* Realtime Row: 2 Columns */
+.realtime-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    height: 320px; /* Explicit height for charts */
+}
+
+/* Bottom Row: Daily (2/3) + Activity (1/3) */
+.bottom-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+    height: 380px;
+}
+
+.chart-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    
+    /* Ensure internal chart container fills space */
+    :deep(.window-content) {
+        flex: 1;
+        position: relative;
+        overflow: hidden; 
+    }
+}
+
+.feed-card {
+    height: 100%;
+    overflow: hidden;
+}
+</style>
