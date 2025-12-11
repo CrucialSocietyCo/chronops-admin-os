@@ -1,7 +1,9 @@
 export default defineEventHandler((event) => {
     const allowedOrigins = [
         'http://localhost:5173',
-        'https://chronops-retrochat-vue.vercel.app'
+        'https://chronops-retrochat-vue.vercel.app',
+        'https://southmain.app',
+        'https://www.southmain.app'
     ]
     const origin = getRequestHeader(event, 'origin')
 
