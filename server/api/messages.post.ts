@@ -28,6 +28,9 @@ export default defineEventHandler(async (event) => {
 
         const senderName = body.sender
 
+        // 0. Enforce Moderation (New Layer)
+        await enforceModeration(event, body)
+
         // 1. Get Context
         const { data: activeEvent, error: eventError } = await client
             .from('events')
@@ -100,7 +103,7 @@ export default defineEventHandler(async (event) => {
                 let serviceClient = null
                 try {
                     serviceClient = serverSupabaseServiceRole(event)
-                } catch (e) {
+                } catch (e: any) {
                     console.warn('[Messages POST] Service Role check failed (Key missing?):', e.message)
                 }
 
@@ -140,7 +143,7 @@ export default defineEventHandler(async (event) => {
             room_id: roomId, // Can be null now
             user_id: userId,
             content: body.content,
-            event_id: activeEvent?.id || null,
+            event_id: activeEvent?.id || null, // Active Event Link
             chat_mode: currentMode,
             history_is_visible: true
         }
@@ -164,12 +167,13 @@ export default defineEventHandler(async (event) => {
             await client.from('app_events').insert({
                 event_type: 'message_sent',
                 user_id: userId,
-                room_id: roomId?.toString(), // Ensure string if needed, or update schema to int if preferred. Schema said text.
+                room_id: roomId?.toString(),
                 payload: {
                     message_id: data.id,
                     content: body.content,
                     sender: senderName,
-                    is_admin: !!user
+                    is_admin: !!user,
+                    client_id: getRequestHeader(event, 'x-client-id') || 'unknown' // IMPORTANT: Used for Rate Limiting
                 }
             })
         } catch (logErr) {
