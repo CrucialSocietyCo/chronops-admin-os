@@ -8,13 +8,13 @@
     </div>
 
     <!-- Top Row: KPIs -->
-    <AnalyticsKpiRow :stats="kpiStats" />
+    <KpiRow :stats="kpiStats" />
 
     <!-- Middle Row: Realtime Charts -->
     <div class="realtime-row">
       <WindowFrame title="Messages / Minute (Live 15m)" class="chart-card">
         <ClientOnly>
-          <AnalyticsRealtimeLineChart 
+          <RealtimeLineChart 
             :labels="messagesPerMin.labels" 
             :data="messagesPerMin.data" 
             label="Messages"
@@ -25,7 +25,7 @@
 
       <WindowFrame title="Active Users (Live 15m)" class="chart-card">
         <ClientOnly>
-          <AnalyticsRealtimeLineChart 
+          <RealtimeLineChart 
              :labels="activeUsersOverTime.labels" 
              :data="activeUsersOverTime.data" 
              label="Unique Users"
@@ -39,7 +39,7 @@
     <div class="bottom-row">
       <WindowFrame title="Daily Activity (14 Days)" class="chart-card flex-2">
         <ClientOnly>
-          <AnalyticsDailyActivityChart 
+          <DailyActivityChart 
             :days="dailyStats.days"
             :messages="dailyStats.messages"
             :newUsers="dailyStats.newUsers"
@@ -48,7 +48,7 @@
       </WindowFrame>
 
       <WindowFrame title="Recent Activity Feed" class="feed-card flex-1">
-        <AnalyticsRecentActivityFeed :events="analytics.recentEvents" />
+        <RecentActivityFeed :events="analytics.recentEvents" />
       </WindowFrame>
     </div>
   </div>
@@ -58,7 +58,13 @@
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import WindowFrame from '~/components/WindowFrame.vue'
 import RetroButton from '~/components/RetroButton.vue'
-// NO manual import for useRealtimeAnalytics (Auto-imported)
+
+// Explicit Imports to avoid Auto-Import Resolution Failures
+import KpiRow from '~/components/analytics/KpiRow.vue'
+import RealtimeLineChart from '~/components/analytics/RealtimeLineChart.vue'
+import DailyActivityChart from '~/components/analytics/DailyActivityChart.vue'
+import RecentActivityFeed from '~/components/analytics/RecentActivityFeed.vue'
+import { useRealtimeAnalytics } from '~/composables/useRealtimeAnalytics'
 
 definePageMeta({
   layout: 'admin'
