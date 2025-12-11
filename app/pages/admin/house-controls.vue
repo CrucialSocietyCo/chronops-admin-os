@@ -9,53 +9,7 @@
     
     <form v-else @submit.prevent="saveSettings" class="settings-form">
       
-      <div class="masonry-grid">
-        <!-- GROUP 2: Flow & Safety Controls -->
-        <div class="masonry-item">
-          <WindowFrame title="Flow & Safety">
-            <div class="grid-2">
-              <div class="form-group checkbox-group">
-                <input type="checkbox" id="chatEnabled" v-model="settings.is_chat_enabled" />
-                <label for="chatEnabled">Enable Chat</label>
-              </div>
-              <div class="form-group">
-                <label>Slow Mode Interval</label>
-                <select v-model="settings.slow_mode_interval" class="retro-select">
-                  <option :value="0">Off (0s)</option>
-                  <option :value="3">3s</option>
-                  <option :value="5">5s</option>
-                  <option :value="10">10s</option>
-                  <option :value="30">30s</option>
-                </select>
-              </div>
-              <div class="form-group checkbox-group">
-                <input type="checkbox" id="burstProtection" v-model="settings.burst_protection_enabled" />
-                <label for="burstProtection">Burst Protection</label>
-              </div>
-              <RetroInput label="Max Burst (10s)" type="number" v-model="settings.max_burst_messages" />
-              <div class="form-group checkbox-group">
-                <input type="checkbox" id="autoMute" v-model="settings.auto_mute_enabled" />
-                <label for="autoMute">Auto-Mute Trigger</label>
-              </div>
-              <RetroInput label="Violations Limit" type="number" v-model="settings.auto_mute_violations" />
-              <RetroInput label="Max Msg Length" type="number" v-model="settings.max_message_length" />
-              <div class="form-group checkbox-group">
-                <input type="checkbox" id="allowLinks" v-model="settings.allow_links" />
-                <label for="allowLinks">Allow Links</label>
-              </div>
-              <div class="form-group checkbox-group">
-                <input type="checkbox" id="pixelReactions" v-model="settings.allow_pixel_reactions" />
-                <label for="pixelReactions">Pixel Reactions</label>
-              </div>
-              <div class="form-group checkbox-group">
-                <input type="checkbox" id="profanityFilter" v-model="settings.profanity_filter_enabled" />
-                <label for="profanityFilter">Profanity Filter</label>
-              </div>
-            </div>
-          </WindowFrame>
-        </div>
-
-        <!-- GROUP 3: Admin Signal Tools -->
+        <!-- GROUP 2: Admin Signal Tools (Renumbered) -->
         <div class="masonry-item">
           <WindowFrame title="Admin Signals">
             <div class="form-row">
@@ -68,28 +22,6 @@
             <div class="form-row">
               <RetroInput label="Topic Prompt" v-model="settings.topic_prompt_text" class="flex-grow" />
               <RetroButton type="button" @click="sendTopicPrompt">Send Prompt</RetroButton>
-            </div>
-          </WindowFrame>
-        </div>
-
-        <!-- GROUP 4: Automations -->
-        <div class="masonry-item">
-          <WindowFrame title="Automations">
-            <div class="grid-2">
-              <div class="form-group checkbox-group">
-                <input type="checkbox" id="crowdSurge" v-model="settings.crowd_surge_detection_enabled" />
-                <label for="crowdSurge">Surge Detection</label>
-              </div>
-              <RetroInput label="Surge Threshold" type="number" v-model="settings.surge_threshold" />
-              <div class="form-group checkbox-group">
-                <input type="checkbox" id="spamBurst" v-model="settings.spam_burst_auto_mute" />
-                <label for="spamBurst">Spam Auto-Mute</label>
-              </div>
-              <div class="form-group checkbox-group">
-                <input type="checkbox" id="inactivityCleanup" v-model="settings.inactivity_cleanup_enabled" />
-                <label for="inactivityCleanup">Inactivity Cleanup</label>
-              </div>
-              <RetroInput label="Reset After (Hrs)" type="number" v-model="settings.inactivity_cleanup_hours" />
             </div>
           </WindowFrame>
         </div>
