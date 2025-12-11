@@ -1,144 +1,131 @@
 <template>
   <div class="settings-editor">
-    <div class="header">
-      <h3>Global Configuration</h3>
-      <RetroButton small @click="saveSettings" :disabled="saving">
-        {{ saving ? 'Saving...' : 'Save Changes' }}
-      </RetroButton>
+    <div v-if="loading" class="loading-container">
+      <WindowFrame title="System Status" class="loading-window">
+        <div class="loading-text">Loading configuration...</div>
+      </WindowFrame>
     </div>
 
-    <div v-if="loading" class="loading">Loading settings...</div>
-    <div v-else class="form-grid">
-      
-      <!-- SECTION 1: RATE LIMITS -->
-      <div class="section-label full-width">Rate Limiting</div>
-      
-      <div class="field-group">
-        <label>Max Messages (Window)</label>
-        <RetroInput 
-          v-model="form.max_messages_per_window" 
-          type="number" 
-          placeholder="e.g. 5"
-        />
-        <span class="hint">Strict limit (Auto-Mute Trigger).</span>
-      </div>
-
-      <div class="field-group">
-        <label>Window Size (seconds)</label>
-        <RetroInput 
-          v-model="form.window_seconds" 
-          type="number" 
-          placeholder="e.g. 10"
-        />
-        <span class="hint">Timeframe for max messages.</span>
-      </div>
-
-      <div class="field-group">
-        <label>Auto-Mute Duration (min)</label>
-        <RetroInput 
-          v-model="form.mute_minutes" 
-          type="number" 
-          placeholder="e.g. 5"
-        />
-        <span class="hint">Penalty for rate limit violations.</span>
-      </div>
-
-      <!-- SECTION 2: BURST & FLOW -->
-       <div class="field-group">
-        <label>Burst Protection</label>
-        <div class="checkbox-wrapper">
-             <input type="checkbox" v-model="form.burst_protection_enabled" id="burstSet" />
-             <label for="burstSet">Enable</label>
+    <form v-else @submit.prevent="saveSettings" class="settings-form">
+      <div class="masonry-grid">
+        
+        <!-- WINDOW 1: RATE LIMITING -->
+        <div class="masonry-item">
+          <WindowFrame title="Rate Limiting">
+            <div class="form-row">
+              <RetroInput label="Max Messages" v-model="form.max_messages_per_window" type="number" class="flex-grow" />
+              <RetroInput label="Window (sec)" v-model="form.window_seconds" type="number" class="flex-grow" />
+            </div>
+            <div class="form-row">
+               <RetroInput label="Mute Duration (min)" v-model="form.mute_minutes" type="number" class="flex-grow" />
+            </div>
+          </WindowFrame>
         </div>
-        <div class="split-input">
-            <label>Max:</label>
-            <input type="number" v-model="form.max_burst_messages" class="retro-select" style="width: 50px" />
+
+        <!-- WINDOW 2: BURST & FLOW -->
+        <div class="masonry-item">
+          <WindowFrame title="Burst & Flow">
+            <div class="form-row">
+               <div class="form-group checkbox-group">
+                 <input type="checkbox" id="burstSet" v-model="form.burst_protection_enabled" />
+                 <label for="burstSet">Burst Protection</label>
+               </div>
+               <RetroInput label="Max Burst" v-model="form.max_burst_messages" type="number" style="width: 60px" />
+            </div>
+            <div class="form-group">
+               <label>Slow Mode</label>
+               <select v-model="form.slow_mode_interval" class="retro-select full-width-select">
+                  <option :value="0">Off (0s)</option>
+                  <option :value="3">3s</option>
+                  <option :value="5">5s</option>
+                  <option :value="10">10s</option>
+                  <option :value="30">30s</option>
+               </select>
+            </div>
+          </WindowFrame>
         </div>
-      </div>
 
-      <div class="field-group">
-        <label>Slow Mode (seconds)</label>
-         <select v-model="form.slow_mode_interval" class="retro-select">
-            <option :value="0">Off (0s)</option>
-            <option :value="3">3s</option>
-            <option :value="5">5s</option>
-            <option :value="10">10s</option>
-            <option :value="30">30s</option>
-        </select>
-      </div>
-
-      <div class="field-group">
-         <label>Advanced Automations</label>
-         <div class="checkbox-wrapper">
-             <input type="checkbox" v-model="form.crowd_surge_detection_enabled" id="surgeSet" />
-             <label for="surgeSet">Surge Detect</label>
-         </div>
-         <div class="checkbox-wrapper">
-             <input type="checkbox" v-model="form.spam_burst_auto_mute" id="spamBurstSet" />
-             <label for="spamBurstSet">Spam Auto-Mute</label>
-         </div>
-      </div>
-
-      <!-- SECTION 3: CHAT RESTRICTIONS -->
-      <div class="section-label full-width">Restrictions & Safety</div>
-
-      <div class="field-group">
-        <label>Enable Chat</label>
-        <div class="checkbox-wrapper">
-            <input type="checkbox" v-model="form.is_chat_enabled" id="chatEnabledSet" />
-            <label for="chatEnabledSet">Allow New Messages</label>
+        <!-- WINDOW 3: AUTOMATIONS -->
+        <div class="masonry-item">
+           <WindowFrame title="Automations">
+             <div class="checkbox-list">
+               <div class="form-group checkbox-group">
+                 <input type="checkbox" id="surgeSet" v-model="form.crowd_surge_detection_enabled" />
+                 <label for="surgeSet">Crowd Surge Detection</label>
+               </div>
+               <div class="form-group checkbox-group">
+                 <input type="checkbox" id="spamBurstSet" v-model="form.spam_burst_auto_mute" />
+                 <label for="spamBurstSet">Spam Burst Auto-Mute</label>
+               </div>
+             </div>
+           </WindowFrame>
         </div>
-      </div>
 
-      <div class="field-group">
-        <label>Content Policies</label>
-        <div class="checkbox-wrapper">
-             <input type="checkbox" v-model="form.profanity_filter_enabled" id="profSet" />
-             <label for="profSet">Profanity Filter</label>
+        <!-- WINDOW 4: POLICIES -->
+        <div class="masonry-item">
+          <WindowFrame title="Chat Policies">
+             <div class="form-group checkbox-group highlight-box">
+                 <input type="checkbox" id="chatEnabledSet" v-model="form.is_chat_enabled" />
+                 <label for="chatEnabledSet"><strong>Enable Global Chat</strong></label>
+             </div>
+             
+             <div class="checkbox-grid">
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="profSet" v-model="form.profanity_filter_enabled" />
+                    <label for="profSet">Profanity Filter</label>
+                </div>
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="linkSet" v-model="form.allow_links" />
+                    <label for="linkSet">Allow Links</label>
+                </div>
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="pixelSet" v-model="form.allow_pixel_reactions" />
+                    <label for="pixelSet">Pixel Reactions</label>
+                </div>
+             </div>
+
+             <div class="form-row" style="marginTop: 10px;">
+                <RetroInput label="Max Message Length" v-model="form.max_message_length" type="number" class="flex-grow" />
+             </div>
+          </WindowFrame>
         </div>
-        <div class="checkbox-wrapper">
-             <input type="checkbox" v-model="form.allow_links" id="linkSet" />
-             <label for="linkSet">Allow Links</label>
+
+        <!-- WINDOW 5: CONTENT FILTER -->
+        <div class="masonry-item">
+           <WindowFrame title="Blocked Words">
+              <textarea 
+                v-model="form.bad_words_str" 
+                rows="6" 
+                class="retro-textarea"
+                placeholder="Comma separated list..."
+              ></textarea>
+           </WindowFrame>
         </div>
-        <div class="checkbox-wrapper">
-             <input type="checkbox" v-model="form.allow_pixel_reactions" id="pixelSet" />
-             <label for="pixelSet">Pixel Reactions</label>
-        </div>
+
       </div>
 
-       <div class="field-group">
-        <label>Max Message Length</label>
-        <RetroInput 
-          v-model="form.max_message_length" 
-          type="number" 
-          placeholder="e.g. 500"
-        />
+      <div class="actions-bar">
+         <div v-if="saveMessage" class="status-message success">{{ saveMessage }}</div>
+         <div v-if="error" class="status-message error">{{ error }}</div>
+         <RetroButton :disabled="saving" @click="saveSettings" class="save-button">
+            {{ saving ? 'Saving...' : 'Save Configuration' }}
+         </RetroButton>
       </div>
-
-      <!-- SECTION 4: BAD WORDS -->
-      <div class="section-label full-width">Bad Words List</div>
-
-      <div class="field-group full-width">
-        <label>Comma Separated List</label>
-        <textarea 
-          v-model="form.bad_words_str" 
-          rows="4" 
-          class="retro-textarea"
-        ></textarea>
-        <span class="hint">Case-insensitive partial match. Blocks messages containing these words.</span>
-      </div>
-
-    </div>
+    </form>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import WindowFrame from '~/components/WindowFrame.vue'
 import RetroButton from '~/components/RetroButton.vue'
 import RetroInput from '~/components/RetroInput.vue'
 
 const loading = ref(true)
 const saving = ref(false)
+const error = ref('')
+const saveMessage = ref('')
+
 const form = ref({
   // Moderation Settings (New)
   max_messages_per_window: 5,
@@ -161,6 +148,7 @@ const form = ref({
 
 const fetchSettings = async () => {
     try {
+        loading.value = true
         const [modData, houseData] = await Promise.all([
             $fetch('/api/moderation/settings').catch(() => ({})),
             $fetch('/api/admin/house-controls').catch(() => ({}))
@@ -189,7 +177,7 @@ const fetchSettings = async () => {
 
     } catch (err) {
         console.error('Failed to fetch settings:', err)
-        alert('Error loading settings')
+        error.value = 'Error loading settings'
     } finally {
         loading.value = false
     }
@@ -197,6 +185,9 @@ const fetchSettings = async () => {
 
 const saveSettings = async () => {
     saving.value = true
+    error.value = ''
+    saveMessage.value = ''
+    
     try {
         // Payload 1: Moderation Settings Table
         const modPayload = {
@@ -226,10 +217,11 @@ const saveSettings = async () => {
              $fetch('/api/admin/house-controls', { method: 'POST', body: housePayload })
         ])
         
-        alert('All Settings Saved Successfully!')
+        saveMessage.value = 'Settings Saved!'
+        setTimeout(() => saveMessage.value = '', 3000)
     } catch (err) {
          console.error('Failed to save settings:', err)
-         alert('Error saving settings: ' + err.message)
+         error.value = 'Error saving: ' + err.message
     } finally {
         saving.value = false
     }
@@ -241,96 +233,149 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
-@use '~/assets/scss/mixins' as *;
+@use '~/assets/scss/_variables.scss' as *;
+@use '~/assets/scss/_mixins.scss' as *;
 
 .settings-editor {
-  background: #c0c0c0;
-  padding: 10px;
-  border: 1px dotted #808080;
+  /* Removed outer border to allow windows to float freely */
 }
 
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-
-  h3 {
-    margin: 0;
-    font-size: 14px;
-    font-weight: bold;
+/* Reusing Masonry Logic from House Controls */
+.masonry-grid {
+  column-count: 2;
+  column-gap: 20px;
+  margin-bottom: 20px;
+  
+  @media (max-width: 900px) {
+    column-count: 1;
   }
 }
 
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+.masonry-item {
+  break-inside: avoid;
+  margin-bottom: 20px;
+}
+
+.form-row {
+  display: flex;
+  align-items: flex-end; /* Align inputs */
   gap: 15px;
+  margin-bottom: 10px;
 }
 
-.full-width {
-  grid-column: 1 / -1;
+.flex-grow {
+  flex: 1;
 }
 
-.section-label {
-    font-weight: bold;
-    border-bottom: 1px solid #808080;
-    margin-top: 10px;
-    margin-bottom: 5px;
-    padding-bottom: 2px;
-}
-
-.field-group {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  
-  label {
-    font-size: 12px;
-    font-weight: bold;
-  }
-  
-  .hint {
-    font-size: 10px;
-    color: #666;
-    margin-top: 2px;
-  }
-}
-
-.checkbox-wrapper {
+.form-group {
     display: flex;
-    align-items: center;
+    flex-direction: column;
     gap: 5px;
-    margin-bottom: 5px;
     
     label {
-        font-weight: normal;
+        font-size: 12px;
+        color: #333;
     }
 }
 
-.split-input {
-    display: flex;
+.checkbox-group {
+    flex-direction: row;
     align-items: center;
-    gap: 5px;
-    font-size: 11px;
+    gap: 8px;
+    
+    label {
+        font-size: 13px;
+        font-weight: normal;
+        cursor: pointer;
+    }
+    
+    input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+    }
 }
 
-.retro-textarea {
-  @include retro-border-inset;
-  font-family: 'MS Sans Serif', sans-serif;
-  padding: 4px;
-  resize: vertical;
+.checkbox-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.checkbox-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.highlight-box {
+    background: #ffffcc;
+    border: 1px dotted #999;
+    padding: 5px;
+    margin-bottom: 5px;
 }
 
 .retro-select {
-  @include retro-border-inset;
-  padding: 4px;
-  font-family: 'MS Sans Serif', sans-serif;
+    @include retro-input;
+    padding: 2px;
+    height: 26px;
 }
 
-.loading {
-  padding: 20px;
-  text-align: center;
-  font-style: italic;
+.full-width-select {
+    width: 100%;
+}
+
+.retro-textarea {
+    @include retro-border-inset;
+    width: 100%;
+    font-family: 'MS Sans Serif', sans-serif;
+    padding: 5px;
+    resize: vertical;
+    box-sizing: border-box; 
+    font-size: 12px;
+}
+
+/* Reuse Loading/Actions Bar from House Controls for consistency */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 50px;
+}
+
+.loading-window {
+    width: 300px;
+}
+
+.loading-text {
+    padding: 20px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.actions-bar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 15px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #fff;
+  box-shadow: 0 -1px 0 #808080;
+  background: #c0c0c0;
+  padding: 15px;
+  border: 2px solid #dfdfdf;
+  border-right-color: #404040;
+  border-bottom-color: #404040;
+  grid-column: 1 / -1; /* If inside grid */
+}
+
+.status-message {
+  font-weight: bold;
+  &.success { color: green; }
+  &.error { color: red; }
+}
+
+.save-button {
+    min-width: 140px;
 }
 </style>

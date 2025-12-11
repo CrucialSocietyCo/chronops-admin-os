@@ -9,6 +9,7 @@
     
     <form v-else @submit.prevent="saveSettings" class="settings-form">
       
+      <div class="masonry-grid">
         <!-- GROUP 2: Admin Signal Tools (Renumbered) -->
         <div class="masonry-item">
           <WindowFrame title="Admin Signals">
