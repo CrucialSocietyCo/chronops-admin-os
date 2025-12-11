@@ -17,20 +17,20 @@ export default defineEventHandler(async (event) => {
 
     console.log('[Messages GET] Active Event Context:', activeEvent ? `ID ${activeEvent.id}` : 'None')
 
-    // 2. Get General Room ID
-    const { data: room } = await client.from('rooms').select('id').eq('slug', 'general').single()
-    const roomId = room?.id
+    // 2. Get General Room ID - (DEPRECATED: We no longer filter by room)
+    // const { data: room } = await client.from('rooms').select('id').eq('slug', 'general').single()
+    // const roomId = room?.id
 
     let messagesQueryBuilder = client
         .from('messages')
-        .select('*') // REMOVED users(name) join to fix PGRST200
+        .select('*')
         .order('created_at', { ascending: false })
         .limit(100)
 
-    // Always safety filter by room
-    if (roomId) {
-        messagesQueryBuilder = messagesQueryBuilder.eq('room_id', roomId)
-    }
+    // REMOVED: Safety filter by room
+    // if (roomId) {
+    //     messagesQueryBuilder = messagesQueryBuilder.eq('room_id', roomId)
+    // }
 
     if (activeEvent) {
         // If history is hidden AND it's a fresh load (since=0), return empty (Security Feature)

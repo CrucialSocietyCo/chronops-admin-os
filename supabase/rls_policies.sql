@@ -24,9 +24,10 @@ create policy "Messages are viewable by everyone"
   using ( true );
 
 -- Authenticated users can insert messages
-create policy "Authenticated users can insert messages"
+-- Allow everyone (Guests + Auth) to insert messages
+create policy "Everyone can insert messages"
   on public.messages for insert
-  with check ( auth.role() = 'authenticated' );
+  with check ( true );
 
 -- EVENTS Table
 -- Everyone can read events
