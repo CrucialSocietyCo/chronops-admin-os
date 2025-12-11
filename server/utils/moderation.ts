@@ -1,8 +1,28 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
-import { MODERATION_CONFIG } from '../../app/config/moderation'
+// import { MODERATION_CONFIG } from '../../app/config/moderation' // Removed static config
 
 export const enforceModeration = async (event: any, body: any) => {
     const serviceClient = serverSupabaseServiceRole(event)
+
+    // 0. Fetch Settings (Cached ideally, but per-request for MVP)
+    // Fallback to defaults if DB fails
+    let config = {
+        rate_limit_window_ms: 10000,
+        max_messages_per_window: 5,
+        max_message_length: 500,
+        bad_words: ['badword1', 'spam'],
+        auto_mute_duration_ms: 300000
+    }
+
+    const { data: settings } = await serviceClient
+        .from('moderation_settings')
+        .select('*')
+        .eq('id', 1)
+        .single()
+
+    if (settings) {
+        config = { ...config, ...settings }
+    }
 
     // 1. Resolve Identity
     const clientId = getRequestHeader(event, 'x-client-id') || 'unknown_client'
@@ -27,7 +47,7 @@ export const enforceModeration = async (event: any, body: any) => {
 
     // 2. Check Active Bans
     // Ban Logic: (client_id match OR ip_address match) AND (expires_at > now OR null)
-    const { data: bans, error: banError } = await serviceClient
+    const { data: bans } = await serviceClient
         .from('bans')
         .select('*')
         .or(`client_id.eq.${clientId},ip_address.eq.${ipAddress}`)
@@ -50,17 +70,17 @@ export const enforceModeration = async (event: any, body: any) => {
     const content = body.content || ''
 
     // 3a. Length
-    if (content.length > MODERATION_CONFIG.MAX_MESSAGE_LENGTH) {
+    if (content.length > config.max_message_length) {
         throw createError({
             statusCode: 400,
             statusMessage: 'Message Too Long',
-            data: { code: 'MESSAGE_TOO_LONG', message: `Max length is ${MODERATION_CONFIG.MAX_MESSAGE_LENGTH} characters.` }
+            data: { code: 'MESSAGE_TOO_LONG', message: `Max length is ${config.max_message_length} characters.` }
         })
     }
 
     // 3b. Bad Words
     const lowerContent = content.toLowerCase()
-    const foundBadWord = MODERATION_CONFIG.BAD_WORDS.find((word: string) => lowerContent.includes(word.toLowerCase()))
+    const foundBadWord = (config.bad_words || []).find((word: string) => lowerContent.includes(word.toLowerCase()))
 
     if (foundBadWord) {
         // Flag or Reject? User asked to Reject for MVP.
@@ -73,7 +93,7 @@ export const enforceModeration = async (event: any, body: any) => {
 
     // 4. Rate Limiting (Database Count Strategy)
     // Count messages from this client_id in last WINDOW
-    const windowStart = new Date(Date.now() - MODERATION_CONFIG.RATE_LIMIT_WINDOW_MS).toISOString()
+    const windowStart = new Date(Date.now() - config.rate_limit_window_ms).toISOString()
 
     // Use app_events because messages table might not capture failed attempts, 
     // BUT we want to limit SUCCESSFUL messages. 
@@ -96,16 +116,16 @@ export const enforceModeration = async (event: any, body: any) => {
     // User said: "Reuse existing schema where possible".
     // I can store `client_id` in the `payload` JSONB of `app_events`.
 
-    const { count, error: countError } = await serviceClient
+    const { count } = await serviceClient
         .from('app_events')
         .select('*', { count: 'exact', head: true })
         .eq('event_type', 'message_sent')
         .contains('payload', { client_id: clientId }) // JSONB filter
         .gt('created_at', windowStart)
 
-    if (count !== null && count >= MODERATION_CONFIG.MAX_MESSAGES_PER_WINDOW) {
+    if (count !== null && count >= config.max_messages_per_window) {
         // AUTO MUTE
-        const expiresAt = new Date(Date.now() + MODERATION_CONFIG.AUTO_MUTE_DURATION_MS)
+        const expiresAt = new Date(Date.now() + config.auto_mute_duration_ms)
 
         await serviceClient.from('bans').insert({
             client_id: clientId,
