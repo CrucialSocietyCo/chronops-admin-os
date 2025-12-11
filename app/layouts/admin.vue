@@ -149,9 +149,6 @@ const enterChatAsAdmin = async () => {
       url.searchParams.set('auth_token', session.value.access_token)
     }
     
-    // DEBUG: Show user the URL before opening
-    alert(`Debug: Opening Chat at ${url.toString()}`)
-    
     window.open(url.toString(), '_blank')
   } catch (e) {
     console.error('Failed to open chat', e)
