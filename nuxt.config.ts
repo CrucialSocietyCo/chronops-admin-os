@@ -12,7 +12,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      chatUrl: process.env.NUXT_PUBLIC_CHAT_URL || 'http://localhost:5173'
+      chatUrl: process.env.NUXT_PUBLIC_CHAT_URL || 'https://southmain.app'
     }
   },
 
