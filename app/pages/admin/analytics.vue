@@ -48,7 +48,7 @@
       </WindowFrame>
 
       <WindowFrame title="Recent Activity Feed" class="feed-card flex-1">
-        <RecentActivityFeed :events="analytics.recentEvents" />
+        <RecentActivityFeed :events="recentEvents" />
       </WindowFrame>
     </div>
   </div>
@@ -73,7 +73,8 @@ definePageMeta({
 })
 
 const supabase = useSupabaseClient()
-const analytics = useRealtimeAnalytics()
+const { recentEvents, getMessagesPerMinute, getActiveUsersOverTime, subscribe, unsubscribe, fetchRecentHistory } = useRealtimeAnalytics()
+
 const loading = ref(false)
 const refreshTimer = ref<NodeJS.Timer | null>(null)
 
@@ -86,8 +87,8 @@ const dailyStats = ref({
 })
 
 // --- Computed Realtime Data ---
-const messagesPerMin = computed(() => analytics.getMessagesPerMinute())
-const activeUsersOverTime = computed(() => analytics.getActiveUsersOverTime())
+const messagesPerMin = computed(() => getMessagesPerMinute())
+const activeUsersOverTime = computed(() => getActiveUsersOverTime())
 
 // --- Data Fetching ---
 const fetchStaticStats = async () => {
@@ -128,15 +129,15 @@ const refreshData = () => {
 
 onMounted(async () => {
     await fetchStaticStats()
-    await analytics.fetchRecentHistory() // Pre-fill buffers
-    analytics.subscribe()
+    await fetchRecentHistory() // Pre-fill buffers
+    subscribe()
     
     // Auto-refresh static stats every 60s
     refreshTimer.value = setInterval(refreshData, 60000)
 })
 
 onUnmounted(() => {
-    analytics.unsubscribe()
+    unsubscribe()
     if (refreshTimer.value) clearInterval(refreshTimer.value)
 })
 
