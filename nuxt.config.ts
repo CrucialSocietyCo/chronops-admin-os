@@ -15,7 +15,7 @@ export default defineNuxtConfig({
       chatUrl: process.env.NUXT_PUBLIC_CHAT_URL || 'https://southmain.app'
     }
   },
-
+  // Force restart 2025-12-10
   app: {
     head: {
       title: 'Society on South Main - Admin',

@@ -33,6 +33,9 @@
             <NuxtLink to="/admin/house-controls" class="nav-item" active-class="active">
               <span class="icon">🏠</span> House Controls
             </NuxtLink>
+            <NuxtLink to="/admin/analytics" class="nav-item" active-class="active">
+              <span class="icon">📈</span> Live Analytics
+            </NuxtLink>
             <NuxtLink to="/admin/moderation" class="nav-item" active-class="active">
               <span class="icon">🛡️</span> Moderation
             </NuxtLink>
