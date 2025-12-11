@@ -13,38 +13,41 @@
     <!-- Middle Row: Realtime Charts -->
     <div class="realtime-row">
       <WindowFrame title="Messages / Minute (Live 15m)" class="chart-card">
-        <ClientOnly>
+        <!-- <ClientOnly>
           <RealtimeLineChart 
             :labels="messagesPerMin.labels" 
             :data="messagesPerMin.data" 
             label="Messages"
             color="#000080"
           />
-        </ClientOnly>
+        </ClientOnly> -->
+        <div style="padding: 20px;">Charts Disabled for Debug</div>
       </WindowFrame>
 
       <WindowFrame title="Active Users (Live 15m)" class="chart-card">
-        <ClientOnly>
+        <!-- <ClientOnly>
           <RealtimeLineChart 
              :labels="activeUsersOverTime.labels" 
              :data="activeUsersOverTime.data" 
              label="Unique Users"
              color="#008080"
           />
-        </ClientOnly>
+        </ClientOnly> -->
+        <div style="padding: 20px;">Charts Disabled for Debug</div>
       </WindowFrame>
     </div>
 
     <!-- Bottom Row: Daily + Recent Activity -->
     <div class="bottom-row">
       <WindowFrame title="Daily Activity (14 Days)" class="chart-card flex-2">
-        <ClientOnly>
+        <!-- <ClientOnly>
           <DailyActivityChart 
             :days="dailyStats.days"
             :messages="dailyStats.messages"
             :newUsers="dailyStats.newUsers"
           />
-        </ClientOnly>
+        </ClientOnly> -->
+        <div style="padding: 20px;">Charts Disabled for Debug</div>
       </WindowFrame>
 
       <WindowFrame title="Recent Activity Feed" class="feed-card flex-1">
@@ -61,8 +64,8 @@ import RetroButton from '~/components/RetroButton.vue'
 
 // Explicit Imports to avoid Auto-Import Resolution Failures
 import KpiRow from '~/components/analytics/KpiRow.vue'
-import RealtimeLineChart from '~/components/analytics/RealtimeLineChart.vue'
-import DailyActivityChart from '~/components/analytics/DailyActivityChart.vue'
+// import RealtimeLineChart from '~/components/analytics/RealtimeLineChart.vue'
+// import DailyActivityChart from '~/components/analytics/DailyActivityChart.vue'
 import RecentActivityFeed from '~/components/analytics/RecentActivityFeed.vue'
 import { useRealtimeAnalytics } from '~/composables/useRealtimeAnalytics'
 
