@@ -59,7 +59,8 @@ import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import WindowFrame from '~/components/WindowFrame.vue'
 import RetroButton from '~/components/RetroButton.vue'
 // Components auto-imported by Nuxt (AnalyticsPrefix due to directory)
-import { useRealtimeAnalytics } from '~/composables/useRealtimeAnalytics'
+// useRealtimeAnalytics is also auto-imported
+
 
 definePageMeta({
   layout: 'admin'
