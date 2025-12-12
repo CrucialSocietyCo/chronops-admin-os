@@ -33,20 +33,13 @@
       <div class="main-column">
         <WindowFrame title="Recent Activity" class="activity-window">
           <div class="activity-list">
-            <div class="activity-item">
-              <span class="time">10:42 AM</span>
-              <span class="user">User123</span>
-              <span class="action">joined room "General"</span>
+            <div v-for="(item, i) in activityFeed" :key="i" class="activity-item">
+              <span class="time">{{ item.formattedTime }}</span>
+              <span class="user">{{ item.user }}</span>
+              <span class="action">{{ item.action }}</span>
             </div>
-            <div class="activity-item">
-              <span class="time">10:40 AM</span>
-              <span class="user">Admin</span>
-              <span class="action">updated House Controls</span>
-            </div>
-            <div class="activity-item">
-              <span class="time">10:35 AM</span>
-              <span class="user">Guest_99</span>
-              <span class="action">registered new account</span>
+            <div v-if="activityFeed.length === 0" class="empty-state">
+                No recent activity.
             </div>
           </div>
         </WindowFrame>
@@ -108,7 +101,7 @@
 <script setup lang="ts">
 import WindowFrame from '~/components/WindowFrame.vue'
 import RetroButton from '~/components/RetroButton.vue'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 
 definePageMeta({
   layout: 'admin'
@@ -117,6 +110,7 @@ definePageMeta({
 const eventMode = ref('Live Event')
 const saving = ref(false)
 const saveMessage = ref('')
+const activityFeed = ref([])
 
 const settings = ref({
   window_border_style: 'System95',
@@ -126,6 +120,18 @@ const settings = ref({
 })
 
 const currentTheme = useState('adminTheme')
+
+const fetchActivity = async () => {
+    try {
+        const data = await $fetch('/api/admin/activity')
+        activityFeed.value = data.map(item => ({
+            ...item,
+            formattedTime: new Date(item.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        }))
+    } catch (e) {
+        console.error('Failed to load activity', e)
+    }
+}
 
 const fetchSettings = async () => {
   try {
@@ -180,8 +186,15 @@ const saveSettings = async () => {
   }
 }
 
+let pollTimer
 onMounted(() => {
   fetchSettings()
+  fetchActivity()
+  pollTimer = setInterval(fetchActivity, 5000)
+})
+
+onUnmounted(() => {
+    if (pollTimer) clearInterval(pollTimer)
 })
 </script>
 
