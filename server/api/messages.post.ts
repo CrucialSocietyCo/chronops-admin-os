@@ -1,4 +1,5 @@
 import { serverSupabaseClient, serverSupabaseUser, serverSupabaseServiceRole } from '#supabase/server'
+import { handleIncomingMessage, buildFingerprint } from '../utils/southmain-mod'
 
 export default defineEventHandler(async (event) => {
     const client = await serverSupabaseClient(event)
@@ -29,7 +30,52 @@ export default defineEventHandler(async (event) => {
         const senderName = body.sender
 
         // 0. Enforce Moderation (New Layer)
-        await enforceModeration(event, body)
+        // await enforceModeration(event, body) // Old moderation
+
+        // --- SouthMain Moderation Integration ---
+        const ip = getRequestHeader(event, 'x-forwarded-for') || event.node.req.socket.remoteAddress || 'unknown'
+        const userAgent = getRequestHeader(event, 'user-agent') || 'unknown'
+
+        // Re-build fingerprint to ensure we match what was used in Join
+        const { fingerprintKey } = buildFingerprint(ip, userAgent)
+
+        // Client should send Session ID. Check header or body.
+        const sessionId = getRequestHeader(event, 'x-session-id') || body.sessionId
+
+        if (!sessionId) {
+            // For MVP, if no session ID, we could fail or auto-join. 
+            // Let's fail for now to enforce protocol, or maybe allow if we want loose enforcement?
+            // "If missing, we might generate one or fail." -> Let's fail 400.
+            throw createError({ statusCode: 400, message: "Missing x-session-id header." })
+        }
+
+        const modDecision = await handleIncomingMessage({
+            sessionId,
+            fingerprintKey,
+            content: body.content
+        })
+
+        if (modDecision.type === 'mute') {
+            throw createError({
+                statusCode: 429,
+                message: modDecision.reason || "You are temporarily muted.",
+                data: {
+                    code: 'RATE_LIMITED', // Frontend expects RATE_LIMITED for countdown modal
+                    message: modDecision.reason,
+                    expires_at: modDecision.expiresAt
+                }
+            })
+        } else if (modDecision.type === 'drop') {
+            throw createError({
+                statusCode: 403,
+                message: "Message dropped.",
+                data: {
+                    code: 'CONTENT_BLOCKED',
+                    message: modDecision.reason
+                }
+            })
+        }
+        // ----------------------------------------
 
         // 1. Get Context
         const { data: activeEvent, error: eventError } = await client
@@ -225,10 +271,10 @@ export default defineEventHandler(async (event) => {
         }
 
     } catch (err: any) {
-        console.error('[Messages POST] CRITICAL FAILURE:', err)
+        console.error('[Messages POST] FAILURE:', err.message)
         throw createError({
-            statusCode: 500,
-            statusMessage: err.message || 'Internal Server Error',
+            statusCode: err.statusCode || 500,
+            statusMessage: err.statusMessage || 'Internal Server Error',
             data: { message: err.message, details: err }
         })
     }
