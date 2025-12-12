@@ -73,16 +73,42 @@ export default defineEventHandler(async (event) => {
             if (publicUser) {
                 userId = publicUser.id
             } else {
-                console.log('[Messages POST] Creating Public Profile for Admin...')
-                const { data: newPub, error: pubError } = await client.from('users').insert({
-                    supabase_user_id: user.id,
-                    name: 'Admin',
-                    email: user.email,
-                    is_admin: true
-                }).select().single()
+                console.log('[Messages POST] Auth User not linked. Checking by email...')
+                // Fallback: Check if user exists by email but isn't linked yet
+                // Use Service Role to avoid RLS issues during linking
+                const serviceClient = serverSupabaseServiceRole(event)
 
-                if (pubError) console.error('[Messages POST] Public Profile Creation Error:', pubError)
-                userId = newPub?.id
+                if (serviceClient) {
+                    const { data: existingUser } = await serviceClient
+                        .from('users')
+                        .select('id')
+                        .eq('email', user.email)
+                        .single()
+
+                    if (existingUser) {
+                        console.log('[Messages POST] Linking Auth User to existing profile:', existingUser.id)
+                        await serviceClient
+                            .from('users')
+                            .update({ supabase_user_id: user.id })
+                            .eq('id', existingUser.id)
+
+                        userId = existingUser.id
+                    }
+                }
+
+                // If still no userId, create new profile
+                if (!userId) {
+                    console.log('[Messages POST] Creating Public Profile for Admin...')
+                    const { data: newPub, error: pubError } = await client.from('users').insert({
+                        supabase_user_id: user.id,
+                        name: 'Admin',
+                        email: user.email,
+                        is_admin: true
+                    }).select().single()
+
+                    if (pubError) console.error('[Messages POST] Public Profile Creation Error:', pubError)
+                    userId = newPub?.id
+                }
             }
         } else {
             console.log('[Messages POST] Guest User Detected. Resolving Guest Profile...')
