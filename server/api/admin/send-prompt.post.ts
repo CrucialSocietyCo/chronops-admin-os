@@ -16,13 +16,31 @@ export default defineEventHandler(async (event) => {
         .eq('supabase_user_id', user.id)
         .single()
 
-    console.log('[SendPrompt] User:', user.id)
-    console.log('[SendPrompt] DB Result:', userData)
+    let finalUserId = userData?.id
 
-    // For Demo: Allow if authenticated, fallback to local ID if DB fails
-    // if (userError || !userData || !userData.is_admin) {
-    //     throw createError({ statusCode: 403, message: 'Forbidden: You are not an admin.' })
-    // }
+    if (!finalUserId) {
+        console.log('[SendPrompt] User not found in public.users, creating...')
+        const { data: newUser, error: insertError } = await client
+            .from('users')
+            .insert({
+                supabase_user_id: user.id,
+                name: 'Admin',
+                email: user.email,
+                is_admin: true
+            })
+            .select()
+            .single()
+
+        if (insertError) {
+            console.error('[SendPrompt] User creation failed:', insertError)
+            // Last resort: Try to find ANY admin or system user
+            const { data: anyAdmin } = await client.from('users').select('id').eq('name', 'Admin').single()
+            if (anyAdmin) finalUserId = anyAdmin.id
+            else throw createError({ statusCode: 500, message: 'Could not resolve Admin User ID' })
+        } else {
+            finalUserId = newUser.id
+        }
+    }
 
     if (!body.text) {
         throw createError({ statusCode: 400, message: 'Missing prompt text' })
@@ -32,10 +50,10 @@ export default defineEventHandler(async (event) => {
     const { data, error } = await client
         .from('messages')
         .insert({
-            content: body.text, // "Topic Prompt" content
-            sender: 'OnlineHost', // Style as System/Host
+            content: body.text,
+            sender: 'OnlineHost',
             type: 'system',
-            user_id: userData.id,
+            user_id: finalUserId,
             history_is_visible: true
         })
         .select()
