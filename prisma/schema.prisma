@@ -233,17 +233,4 @@ model SystemLog {
   updatedAt DateTime @updatedAt
 }
 
-model AnalyticsEvent {
-  id                   String   @id @default(uuid())
-  eventName            String   @map("event_name")
-  roomId               String   @map("room_id")
-  clientId             String   @map("client_id")
-  ipHash               String?  @map("ip_hash")
-  userAgentFingerprint String?  @map("user_agent_fingerprint")
-  payload              Json?
-  createdAt            DateTime @default(now()) @map("created_at")
 
-  @@index([createdAt])
-  @@index([eventName])
-  @@map("analytics_events")
-}
