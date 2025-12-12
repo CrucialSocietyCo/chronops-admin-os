@@ -67,7 +67,7 @@
     <div class="start-menu-bar">
       <NuxtLink to="/admin/dashboard" class="start-button">
         <img src="https://win98icons.alexmeub.com/icons/png/windows_slanted-1.png" alt="logo" />
-        Start
+        Society on South Main
       </NuxtLink>
       <div class="right-controls">
         <button @click="handleLogout" class="logout-button">
