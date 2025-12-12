@@ -1,16 +1,22 @@
-import { serverSupabaseClient } from '#supabase/server'
+import { serverSupabaseClient, serverSupabaseServiceRole } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
     const client = await serverSupabaseClient(event)
+    const adminClient = serverSupabaseServiceRole(event) // Use Service Role for global context
     const urlQuery = getQuery(event)
     const since = urlQuery.since ? parseInt(urlQuery.since as string) : 0
     const sessionId = getRequestHeader(event, 'x-session-id') // Get caller session ID
 
-    // 1. Get Context (Active Event) - Just for history settings, not filtering
+    // 1. Get Context (Active Event) - Use Admin Client to bypass RLS on 'events' table
     console.log('[Messages GET] Starting Fetch...')
 
+    // DEBUG LOG
+    const fs = await import('node:fs')
+    const LOG_FILE = process.cwd() + '/server-debug.log'
+    const log = (msg: string) => fs.appendFileSync(LOG_FILE, `[MessagesGET] ${new Date().toISOString()} ${msg}\n`)
+
     // We still check the event to respect "show_chat_history" boolean
-    const { data: activeEvent } = await client
+    const { data: activeEvent } = await adminClient
         .from('events')
         .select('id, show_chat_history')
         .eq('is_active', true)
@@ -58,8 +64,15 @@ export default defineEventHandler(async (event) => {
     const { data: messages, error } = await messagesQueryBuilder
 
     if (error) {
+        log(`Supabase Error: ${error.message}`)
         console.error('[Messages GET] Supabase Error:', error)
         return []
+    }
+
+    log(`Found ${messages?.length || 0} messages. ActiveEventID: ${activeEvent?.id || 'None'}`)
+    if (messages && messages.length > 0) {
+        // Log first message to see if it's the one we just added
+        log(`Top Message: ID=${messages[0].id} Content="${messages[0].content}" Type=${messages[0].type} PayloadSubtype=${messages[0].payload?.subtype}`)
     }
 
     console.log(`[Messages GET] Found ${messages?.length || 0} messages.`)

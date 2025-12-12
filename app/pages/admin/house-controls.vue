@@ -8,17 +8,24 @@
     <div v-else-if="error" class="error">{{ error }}</div>
     
     <div v-else>
-      <div style="margin-bottom: 20px;">
-        <WindowFrame title="Pinned Items & Announcements">
-          <PinnedItemsManager />
-        </WindowFrame>
-      </div>
-
       <form @submit.prevent="saveSettings" class="settings-form">
-      
-      <div class="masonry-grid">
-        <!-- GROUP 2: Admin Signal Tools (Renumbered) -->
-        <div class="masonry-item">
+      <div class="responsive-grid">
+        <!-- GROUP 1: Pinned Items & Announcements -->
+        <div class="grid-item">
+          <WindowFrame title="Pinned Items">
+            <PinnedItemsManager />
+          </WindowFrame>
+        </div>
+
+        <!-- NEW: Live Voice Drop -->
+        <div class="grid-item">
+           <WindowFrame title="Live Voice Drop">
+              <AudioRecorder @sent="fetchSettings" />
+           </WindowFrame>
+        </div>
+
+        <!-- GROUP 2: Admin Signal Tools -->
+        <div class="grid-item">
           <WindowFrame title="Admin Signals">
             <div class="form-row">
               <div class="form-group checkbox-group">
@@ -34,16 +41,14 @@
           </WindowFrame>
         </div>
 
-
-
         <!-- GROUP 6: Event Scheduling -->
-        <div class="masonry-item">
+        <div class="grid-item">
           <WindowFrame title="Scheduling">
             <div class="form-group checkbox-group">
               <input type="checkbox" id="schedulingEnabled" v-model="settings.is_scheduling_enabled" />
               <label for="schedulingEnabled">Enable Scheduling</label>
             </div>
-            <div class="grid-2">
+            <div class="grid-sub-2">
               <RetroInput label="Pre-Show Time" type="datetime-local" v-model="settings.pre_show_time" />
               <RetroInput label="Live Event Time" type="datetime-local" v-model="settings.live_event_time" />
               <RetroInput label="Afterparty Time" type="datetime-local" v-model="settings.afterparty_time" />
@@ -56,7 +61,7 @@
         </div>
 
         <!-- GROUP 7: System Snapshots -->
-        <div class="masonry-item">
+        <div class="grid-item">
           <WindowFrame title="Snapshots">
             <div class="snapshot-controls">
               <RetroButton type="button" @click="saveSnapshot">Save Snapshot</RetroButton>
@@ -89,6 +94,7 @@ import WindowFrame from '~/components/WindowFrame.vue'
 import RetroButton from '~/components/RetroButton.vue'
 import RetroInput from '~/components/RetroInput.vue'
 import PinnedItemsManager from '~/components/moderation/PinnedItemsManager.vue'
+import AudioRecorder from '~/components/admin/AudioRecorder.vue'
 import { ref, onMounted } from 'vue'
 
 definePageMeta({
@@ -217,27 +223,54 @@ onMounted(() => {
   padding-bottom: 40px;
 }
 
+/* CSS Masonry Layout (CSS Columns) */
 .settings-form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+  /* No specific styles needed for wrapper */
 }
 
 .masonry-grid {
-  column-count: 2;
-  column-gap: 20px;
+  column-count: 3;
+  column-gap: 15px;
+  width: 100%;
   
-  @media (max-width: 768px) {
+  /* Trigger 2 columns much earlier (tablets/small laptops) */
+  @media (max-width: 1000px) {
+    column-count: 2;
+  }
+
+  /* Only drop to 1 column on actual mobile phones */
+  @media (max-width: 600px) {
     column-count: 1;
   }
 }
 
-.masonry-item {
-  break-inside: avoid;
+.grid-item {
+  break-inside: avoid-column; /* Prevent split across columns */
+  page-break-inside: avoid;
+  display: block; /* Ensure block formatting */
+  width: 100%;
   margin-bottom: 20px;
+  
+  /* Ensure WindowFrame doesn't stretch infinitely if it has height:100% */
+  height: auto !important; 
 }
 
-/* Removed .retro-fieldset styles as we use WindowFrame now */
+/* Override WindowFrame height in this context to shrink-wrap content */
+:deep(.window-frame) {
+  height: auto !important;
+}
+
+/* Internal grid for Scheduling window inputs (Keep as Grid) */
+.grid-sub-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  align-items: center;
+  
+  @media (max-width: 450px) {
+     grid-template-columns: 1fr;
+  }
+}
 
 .form-row {
   display: flex;
@@ -245,16 +278,12 @@ onMounted(() => {
   gap: 15px;
   margin-bottom: 10px;
   
-  &:last-child {
-    margin-bottom: 0;
+  &:last-child { margin-bottom: 0; }
+  
+  @media (max-width: 450px) {
+    flex-direction: column;
+    align-items: stretch;
   }
-}
-
-.grid-2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
-  align-items: center;
 }
 
 .form-group {
@@ -273,17 +302,8 @@ onMounted(() => {
   align-items: center;
   gap: 8px;
   
-  input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
-  }
-  
-  label {
-    font-size: 14px;
-    font-weight: normal;
-    color: black;
-    cursor: pointer;
-  }
+  input[type="checkbox"] { width: 16px; height: 16px; }
+  label { font-size: 14px; font-weight: normal; color: black; cursor: pointer; }
 }
 
 .retro-select {
@@ -292,19 +312,14 @@ onMounted(() => {
   height: 28px;
 }
 
-.retro-range {
-  width: 100%;
-}
-
 .snapshot-controls {
   display: flex;
   gap: 10px;
   align-items: center;
+  flex-wrap: wrap; /* responsive */
 }
 
-.flex-grow {
-  flex: 1;
-}
+.flex-grow { flex: 1; }
 
 .actions-bar {
   display: flex;
@@ -312,26 +327,22 @@ onMounted(() => {
   align-items: center;
   gap: 15px;
   margin-top: 10px;
-  padding-top: 10px;
-  border-top: 1px solid #fff;
-  box-shadow: 0 -1px 0 #808080;
-  background: #c0c0c0; /* Ensure visibility */
   padding: 15px;
   border: 2px solid #dfdfdf;
   border-right-color: #404040;
   border-bottom-color: #404040;
+  background: #c0c0c0;
+  border-top: 1px solid #fff;
+  box-shadow: 0 -1px 0 #808080;
 }
 
 .status-message {
   font-weight: bold;
-  
   &.success { color: green; }
   &.error { color: red; }
 }
 
-.save-button {
-  min-width: 120px;
-}
+.save-button { min-width: 120px; }
 
 .loading-container {
   display: flex;
@@ -340,13 +351,6 @@ onMounted(() => {
   padding: 50px;
 }
 
-.loading-window {
-  width: 300px;
-}
-
-.loading-text {
-  padding: 20px;
-  text-align: center;
-  font-weight: bold;
-}
+.loading-window { width: 300px; }
+.loading-text { padding: 20px; text-align: center; font-weight: bold; }
 </style>
