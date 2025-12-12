@@ -12,7 +12,7 @@
   "dependencies": {
     "@nuxtjs/supabase": "^2.0.3",
     "@pinia/nuxt": "^0.11.3",
-    "@prisma/client": "^7.0.1",
+    "@supabase/supabase-js": "^2.87.1",
     "bcrypt": "^6.0.0",
     "chart.js": "^4.5.1",
     "dotenv": "^17.2.3",
@@ -26,7 +26,6 @@
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
-    "prisma": "^7.0.1",
     "sass-loader": "^16.0.6"
   }
 }

@@ -7,7 +7,14 @@
     </div>
     <div v-else-if="error" class="error">{{ error }}</div>
     
-    <form v-else @submit.prevent="saveSettings" class="settings-form">
+    <div v-else>
+      <div style="margin-bottom: 20px;">
+        <WindowFrame title="Pinned Items & Announcements">
+          <PinnedItemsManager />
+        </WindowFrame>
+      </div>
+
+      <form @submit.prevent="saveSettings" class="settings-form">
       
       <div class="masonry-grid">
         <!-- GROUP 2: Admin Signal Tools (Renumbered) -->
@@ -73,6 +80,7 @@
       </div>
       
     </form>
+    </div>
   </div>
 </template>
 
@@ -80,6 +88,7 @@
 import WindowFrame from '~/components/WindowFrame.vue'
 import RetroButton from '~/components/RetroButton.vue'
 import RetroInput from '~/components/RetroInput.vue'
+import PinnedItemsManager from '~/components/moderation/PinnedItemsManager.vue'
 import { ref, onMounted } from 'vue'
 
 definePageMeta({
