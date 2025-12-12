@@ -33,9 +33,7 @@
       <span>SENDING...</span>
     </div>
 
-    <div v-if="isSent" class="success-message">Run 'Sent!'</div>
-    <div v-if="error" class="error-msg">{{ error }}</div>
-    <div class="debug-status">{{ debugStatus }}</div>
+    <div class="debug-status" :class="{ 'success-text': isSent }">{{ debugStatus }}</div>
   </div>
 </template>
 
@@ -141,10 +139,14 @@ const cancelRecording = async () => {
     100% { opacity: 1; }
 }
 
-.success-message {
-    color: green;
+.success-text {
+    color: #008000;
     font-weight: bold;
-    font-size: 12px;
-    margin-top: 5px;
+    animation: flash 1s;
+}
+
+@keyframes flash {
+    0% { background-color: #90EE90; }
+    100% { background-color: transparent; }
 }
 </style>

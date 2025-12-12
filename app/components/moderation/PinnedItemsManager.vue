@@ -6,11 +6,13 @@
       <button @click="openEditor()" class="btn-primary">New Item</button>
     </div>
 
-    <div v-if="loading" class="loading">Loading items...</div>
+    <div v-if="loading" class="empty-state">
+        Loading Pinned items<br>...
+    </div>
     
     <div v-else class="items-list">
       <div v-if="items.length === 0" class="empty-state">
-        No pinned items active. Create one to display at the top of the chat.
+        No pinned items active.<br>Create one to display at the top of the chat.
       </div>
       
       <div v-for="item in items" :key="item.id" class="item-card" :class="{ inactive: !item.is_active }">

@@ -1,18 +1,12 @@
 <template>
   <div class="house-controls-page">
-    <div v-if="loading" class="loading-container">
-      <WindowFrame title="System Status" class="loading-window">
-        <div class="loading-text">Loading settings...</div>
-      </WindowFrame>
-    </div>
-    <div v-else-if="error" class="error">{{ error }}</div>
+    <div v-if="error" class="error">{{ error }}</div>
     
-    <div v-else>
-      <form @submit.prevent="saveSettings" class="settings-form">
+    <form @submit.prevent="saveSettings" class="settings-form">
       <div class="responsive-grid">
         <!-- GROUP 1: Pinned Items & Announcements -->
         <div class="grid-item">
-          <WindowFrame title="Pinned Items">
+          <WindowFrame title="Pinned Items" height="auto">
             <PinnedItemsManager />
           </WindowFrame>
         </div>
@@ -85,7 +79,6 @@
       </div>
       
     </form>
-    </div>
   </div>
 </template>
 

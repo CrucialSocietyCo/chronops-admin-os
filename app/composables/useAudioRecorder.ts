@@ -35,7 +35,11 @@ export const useAudioRecorder = () => {
             debugStatus.value = 'Recording...'
 
             timerInterval = setInterval(() => {
-                timer.value = Math.floor((Date.now() - startTime) / 1000)
+                const elapsed = (Date.now() - startTime) / 1000
+                timer.value = Math.floor(elapsed)
+                if (elapsed >= 5.0) {
+                    stopRecording()
+                }
             }, 100)
 
             console.log('[useAudioRecorder] Recording started')
