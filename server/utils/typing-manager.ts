@@ -52,7 +52,7 @@ class TypingManager {
         }
 
         // 2. Update State
-        const wasActive = this.activeTypers.size > 0
+        const prevKeys = Array.from(this.activeTypers.keys()).sort().join(',')
 
         if (action === 'stop') {
             this.activeTypers.delete(userId)
@@ -63,18 +63,13 @@ class TypingManager {
         // 3. Clean Expired
         this.cleanUp()
 
+        const currentKeys = Array.from(this.activeTypers.keys()).sort().join(',')
         const isActive = this.activeTypers.size > 0
 
-        // 4. Broadcast if State Changed (Active <-> Inactive)
-        // We only care if we transition from 0 -> >0 or >0 -> 0 to save bandwidth
-        // OR if we strictly want "someone is typing" to stay alive, we might need 
-        // to occasionally re-broadcast if the clients purely rely on a timeout.
-        // However, the prompt implies the client UI handles the "fade away" logic 
-        // based on "active typer count > 0". The server is the authority.
-        // Let's broadcast on ANY 0<->1 transition.
-
-        if (wasActive !== isActive) {
-            await this.broadcastState(event, isActive)
+        // 4. Broadcast if Set Changed
+        // We broadcast whenever the "Who is typing" list changes so clients can filter themselves out
+        if (prevKeys !== currentKeys) {
+            await this.broadcastState(event, Array.from(this.activeTypers.keys()))
         }
 
         return { allowed: true, isActive }
@@ -89,7 +84,7 @@ class TypingManager {
         }
     }
 
-    private async broadcastState(event: any, isActive: boolean) {
+    private async broadcastState(event: any, activeUserIds: string[]) {
         try {
             const client = serverSupabaseServiceRole(event)
             if (!client) return
@@ -97,12 +92,13 @@ class TypingManager {
             await client.channel('room:general').send({
                 type: 'broadcast',
                 event: 'typing_update',
-                payload: { isActive }
+                payload: { activeUserIds }
             })
         } catch (err) {
             console.error('[TypingManager] Broadcast failed', err)
         }
     }
+
 }
 
 // Export Singleton
