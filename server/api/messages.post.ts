@@ -162,6 +162,18 @@ export default defineEventHandler(async (event) => {
 
         console.log('[Messages POST] Success:', data.id)
 
+        // 5. Update Last Seen (Async - Fire and Forget)
+        try {
+            const serviceClient = serverSupabaseServiceRole(event)
+            if (serviceClient) {
+                await serviceClient.from('users')
+                    .update({ last_seen_at: new Date().toISOString() })
+                    .eq('id', userId)
+            }
+        } catch (updateErr) {
+            console.error('[Messages POST] Failed to update last_seen_at:', updateErr)
+        }
+
         // LOG ANALYTICS EVENT (Fire and Forget)
         try {
             await client.from('app_events').insert({
