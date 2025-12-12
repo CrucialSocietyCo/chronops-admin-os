@@ -2,8 +2,9 @@ import { serverSupabaseClient } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
     const client = await serverSupabaseClient(event)
-    const urlQuery = getQuery(event) // Renamed to avoid conflict with Supabase query builder
+    const urlQuery = getQuery(event)
     const since = urlQuery.since ? parseInt(urlQuery.since as string) : 0
+    const sessionId = getRequestHeader(event, 'x-session-id') // Get caller session ID
 
     // 1. Get Context (Active Event) - Just for history settings, not filtering
     console.log('[Messages GET] Starting Fetch...')
@@ -86,12 +87,25 @@ export default defineEventHandler(async (event) => {
         }
     }
 
+    // 4. Fetch Reactions
+    const messageIds = messages.map(m => m.id)
+    let reactionsData: any[] = []
+
+    if (messageIds.length > 0) {
+        const { data } = await client
+            .from('chat_message_reactions')
+            .select('message_id, reaction_type, session_id')
+            .in('message_id', messageIds)
+
+        if (data) reactionsData = data
+    }
+
     // Transform for frontend
     return messages.reverse().map((msg: any) => {
         let senderName: string
         if (msg.type === 'system' && msg.payload?.original_user_id) {
             const originalUser = userMap[msg.payload.original_user_id]?.name || 'User'
-            senderName = `Ai Rewrite from ${originalUser}`
+            senderName = `Ai Rewrite for ${originalUser}`
         } else if (msg.type === 'system') {
             senderName = 'System'
         } else {
@@ -107,7 +121,24 @@ export default defineEventHandler(async (event) => {
             type: msg.type || 'user',
             payload: msg.payload,
             created_at: msg.created_at,
-            chat_mode: msg.chat_mode
+            created_at: msg.created_at,
+            chat_mode: msg.chat_mode,
+            reactions: processReactions(msg.id, reactionsData, sessionId)
         }
     })
 })
+
+function processReactions(msgId: any, allReactions: any[], mySessionId?: string) {
+    const msgReactions = allReactions.filter(r => r.message_id === msgId)
+    const counts: Record<string, number> = {}
+    const myReactions: string[] = []
+
+    msgReactions.forEach(r => {
+        counts[r.reaction_type] = (counts[r.reaction_type] || 0) + 1
+        if (mySessionId && r.session_id === mySessionId) {
+            myReactions.push(r.reaction_type)
+        }
+    })
+
+    return { counts, myReactions }
+}
