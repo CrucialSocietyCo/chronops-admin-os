@@ -1,6 +1,6 @@
 <template>
   <div class="events-page">
-    <WindowFrame title="Event Management">
+    <WindowFrame title="Events Management">
       <div class="toolbar">
         <RetroButton @click="loadEvents">🔄 Refresh</RetroButton>
         <div class="divider"></div>

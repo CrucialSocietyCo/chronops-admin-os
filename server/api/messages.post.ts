@@ -1,6 +1,7 @@
 import { serverSupabaseClient, serverSupabaseUser, serverSupabaseServiceRole } from '#supabase/server'
 import { handleIncomingMessage, buildFingerprint } from '../utils/southmain-mod'
 
+
 export default defineEventHandler(async (event) => {
     const client = await serverSupabaseClient(event)
     let user = await serverSupabaseUser(event)
@@ -17,278 +18,303 @@ export default defineEventHandler(async (event) => {
         }
     }
 
+    // ----------------------------------------------------------------------
+    // AI LOGIC (Inlined for Safety)
+    // ----------------------------------------------------------------------
+    const generatePersonaRewrite = async (originalText: string): Promise<string> => {
+        const config = useRuntimeConfig()
+        const apiKey = config.GOOGLE_GENERATIVE_AI_API_KEY || config.public?.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY
+
+        const FALLBACKS = [
+            "I must respectfully disagree with your statement.",
+            "I am afraid that simply isn't protocol at this establishment.",
+            "Have you tried turning your attitude off and on again?",
+            "My legal counsel advises me to ignore that remark.",
+            "I hear you, and I am validiating your feelings of frustration.",
+            "Let's stick to the agenda, shall we?"
+        ]
+        const getFallback = () => FALLBACKS[Math.floor(Math.random() * FALLBACKS.length)]
+
+        const PERSONAS = [
+            { name: "Corporate HR", instr: "Rewrite this into polite but cold, soulless Corporate Email Speak." },
+            { name: "Fancy Butler", instr: "Rewrite this as a hyper-polite, upper-class British butler quietly judging the user." },
+            { name: "Grumpy Sysadmin", instr: "Rewrite this as a tired IT System Administrator asking if they have read the manual." },
+            { name: "Corporate Lawyer", instr: "Rewrite this as a defensive lawyer citing non-existent policy terms to deflect blame." },
+            { name: "Therapist", instr: "Rewrite this as a gentle therapist validating feelings but setting firm boundaries." },
+            { name: "Passive Aggressive", instr: "Rewrite this into an extremely passive-aggressive and condescending remark." }
+        ]
+
+        const selectedPersona = PERSONAS[Math.floor(Math.random() * PERSONAS.length)]
+
+        console.log('[AI] Key present?', !!apiKey, 'Start:', apiKey ? apiKey.substring(0, 4) : 'N/A')
+        console.log('[AI] Selected Persona:', selectedPersona.name)
+
+        if (!apiKey) {
+            console.warn('[AI] Missing GOOGLE_GENERATIVE_AI_API_KEY. Using fallback.')
+            return getFallback()
+        }
+
+        const prompt = `
+System / Instruction:
+"Your goal is to rewrite rude/aggressive chat messages into a specific Persona Tone.
+CURRENT PERSONA: ${selectedPersona.instr}
+
+- Output ONLY the rewritten text.
+- DO NOT repeat slurs, hate speech, or banned words.
+- You must NOT include the original profanity or slur.
+- Be creative, spicy, and stay fully in character.
+- Maximum 180 characters."
+
+User input example:
+original_message: "Man shut the hell up"
+
+Example Output for this persona:
+"I believe we are deviating from the optimal conversation parameters."
+
+Input message to rewrite:
+"${originalText}"
+        `
+
+        try {
+            console.log('[AI] Sending request to Gemini...')
+            const data: any = await $fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+                method: 'POST',
+                body: { contents: [{ parts: [{ text: prompt }] }] }
+            })
+
+            console.log('[AI] Response received.')
+            const candidate = data.candidates?.[0]?.content?.parts?.[0]?.text
+
+            if (!candidate) throw new Error('No candidate returned from AI model')
+
+            return candidate.trim().replace(/^"|"$/g, '') // Remove quotes if added by AI
+
+        } catch (error: any) {
+            console.error('[AI] Generation Failed:', error.data || error)
+            return getFallback()
+        }
+    }
+
     try {
         console.log('[Messages POST] Starting request processing...')
 
         const body = await readBody(event)
-        console.log('[Messages POST] Body:', JSON.stringify(body))
 
         if (!body.content || !body.sender) {
             throw new Error('Missing content or sender in body')
         }
 
         const senderName = body.sender
+        // const client = await serverSupabaseClient(event) // THIS LINE IS NOW REDUNDANT
 
-        // 0. Enforce Moderation (New Layer)
-        // await enforceModeration(event, body) // Old moderation
+        // ------------------------------------------------------------------
+        // 1. User Resolution (Moved EARLY to support AI attribution)
+        // ------------------------------------------------------------------
+        user = await serverSupabaseUser(event)
 
-        // --- SouthMain Moderation Integration ---
-        const ip = getRequestHeader(event, 'x-forwarded-for') || event.node.req.socket.remoteAddress || 'unknown'
-        const userAgent = getRequestHeader(event, 'user-agent') || 'unknown'
-
-        // Re-build fingerprint to ensure we match what was used in Join
-        const { fingerprintKey } = buildFingerprint(ip, userAgent)
-
-        // Client should send Session ID. Check header or body.
-        const sessionId = getRequestHeader(event, 'x-session-id') || body.sessionId
-
-        if (!sessionId) {
-            // For MVP, if no session ID, we could fail or auto-join. 
-            // Let's fail for now to enforce protocol, or maybe allow if we want loose enforcement?
-            // "If missing, we might generate one or fail." -> Let's fail 400.
-            throw createError({ statusCode: 400, message: "Missing x-session-id header." })
-        }
-
-        const modDecision = await handleIncomingMessage({
-            sessionId,
-            fingerprintKey,
-            content: body.content
-        })
-
-        if (modDecision.type === 'mute') {
-            throw createError({
-                statusCode: 429,
-                message: modDecision.reason || "You are temporarily muted.",
-                data: {
-                    code: 'RATE_LIMITED', // Frontend expects RATE_LIMITED for countdown modal
-                    message: modDecision.reason,
-                    expires_at: modDecision.expiresAt
-                }
-            })
-        } else if (modDecision.type === 'drop') {
-            throw createError({
-                statusCode: 403,
-                message: "Message dropped.",
-                data: {
-                    code: 'CONTENT_BLOCKED',
-                    message: modDecision.reason
-                }
-            })
-        }
-        // ----------------------------------------
-
-        // 1. Get Context
-        const { data: activeEvent, error: eventError } = await client
-            .from('events')
-            .select('id')
-            .eq('is_active', true)
-            .single()
-
-        if (eventError) console.error('[Messages POST] Event Error (Non-fatal):', eventError)
-        console.log('[Messages POST] Active Event ID:', activeEvent?.id)
-
-        const { data: settings } = await client.from('chat_settings').select('event_mode').single()
-        const currentMode = settings?.event_mode || 'Live Event'
-
-        // 2. Room Resolution (Optional)
-        let roomId = null
-        try {
-            const { data: room } = await client
-                .from('rooms')
-                .select('id')
-                .eq('slug', 'general')
-                .single()
-
-            if (room) {
-                roomId = room.id
-            } else {
-                console.warn('[Messages POST] General room not found. Proceeding without Room ID.')
+        // Auth Fallback
+        if (!user) {
+            const authHeader = getRequestHeader(event, 'Authorization')
+            if (authHeader && authHeader.startsWith('Bearer ')) {
+                const token = authHeader.split(' ')[1]
+                const { data } = await client.auth.getUser(token)
+                if (data?.user) user = data.user
             }
-        } catch (roomErr) {
-            console.warn('[Messages POST] Room lookup failed (non-fatal):', roomErr)
         }
-        console.log('[Messages POST] Target Room ID:', roomId)
 
-        // 3. User Resolution
         let userId = null
 
         if (user) {
-            console.log('[Messages POST] Auth User Detected:', user.id)
             const { data: publicUser } = await client.from('users').select('id').eq('supabase_user_id', user.id).single()
-
             if (publicUser) {
                 userId = publicUser.id
             } else {
-                console.log('[Messages POST] Auth User not linked. Checking by email...')
-                // Fallback: Check if user exists by email but isn't linked yet
-                // Use Service Role to avoid RLS issues during linking
+                // Link or Create Logic (Simplified for brevity, assuming standard flow)
                 const serviceClient = serverSupabaseServiceRole(event)
-
                 if (serviceClient) {
-                    const { data: existingUser } = await serviceClient
-                        .from('users')
-                        .select('id')
-                        .eq('email', user.email)
-                        .single()
-
-                    if (existingUser) {
-                        console.log('[Messages POST] Linking Auth User to existing profile:', existingUser.id)
-                        await serviceClient
-                            .from('users')
-                            .update({ supabase_user_id: user.id })
-                            .eq('id', existingUser.id)
-
-                        userId = existingUser.id
+                    const { data: existing } = await serviceClient.from('users').select('id').eq('email', user.email).single()
+                    if (existing) {
+                        await serviceClient.from('users').update({ supabase_user_id: user.id }).eq('id', existing.id)
+                        userId = existing.id
                     }
                 }
-
-                // If still no userId, create new profile
                 if (!userId) {
-                    console.log('[Messages POST] Creating Public Profile for Admin...')
-                    const { data: newPub, error: pubError } = await client.from('users').insert({
+                    const { data: newPub } = await client.from('users').insert({
                         supabase_user_id: user.id,
                         name: 'Admin',
                         email: user.email,
                         is_admin: true
                     }).select().single()
-
-                    if (pubError) console.error('[Messages POST] Public Profile Creation Error:', pubError)
                     userId = newPub?.id
                 }
             }
         } else {
-            console.log('[Messages POST] Guest User Detected. Resolving Guest Profile...')
-            // Use time-based suffix to avoid collisions if multiple guests choose same name
+            // Guest Logic
             const timestamp = Date.now().toString().slice(-4)
             const sanitizedName = senderName.replace(/[^a-zA-Z0-9]/g, '').toLowerCase() || 'guest'
             const cleanEmail = `guest_${sanitizedName}_${timestamp}@chronops.local`
 
-            // Check if user exists (Reader Client is fine for SELECT if public policy exists)
             const { data: guestUser } = await client.from('users').select('id').eq('email', cleanEmail).single()
-
             if (guestUser) {
                 userId = guestUser.id
             } else {
-                // INSERT requires Service Role because Public cannot INSERT into users
-                // However, serverSupabaseServiceRole THROWS if the key is missing.
-                // We must catch that specific error to allow fallback to Public Insert (if RLS allows it).
+                // Try Service Role for Insert, Fallback to Client
                 let serviceClient = null
-                try {
-                    serviceClient = serverSupabaseServiceRole(event)
-                } catch (e: any) {
-                    console.warn('[Messages POST] Service Role check failed (Key missing?):', e.message)
-                }
+                try { serviceClient = serverSupabaseServiceRole(event) } catch (e) { }
 
-                if (!serviceClient) {
-                    console.warn('[Messages POST] Service Role unavailable. Attempting Public Insert (Requires RLS Policy)...')
-                    // Fallback to standard client
-                    const { data: newGuest, error: guestError } = await client.from('users').insert({
-                        name: senderName,
-                        email: cleanEmail,
-                        supabase_user_id: null
-                    }).select().single()
-
-                    if (guestError) {
-                        console.error('[Messages POST] Guest Creation Error (Public):', guestError)
-                        // This will flow down to "Failed to resolve User ID"
-                    } else {
-                        userId = newGuest?.id
-                    }
-                } else {
-                    const { data: newGuest, error: guestError } = await serviceClient.from('users').insert({
-                        name: senderName,
-                        email: cleanEmail,
-                        supabase_user_id: null
-                    }).select().single()
-
-                    if (guestError) console.error('[Messages POST] Guest Creation Error (ServiceRole):', guestError)
-                    userId = newGuest?.id
-                }
+                const inserter = serviceClient || client
+                const { data: newGuest } = await inserter.from('users').insert({
+                    name: senderName,
+                    email: cleanEmail,
+                    supabase_user_id: null
+                }).select().single()
+                userId = newGuest?.id
             }
         }
 
-        console.log('[Messages POST] Final Resolved User ID:', userId)
         if (!userId) throw new Error('Failed to resolve User ID')
 
-        // 4. Insert Message
-        const payload = {
-            room_id: roomId, // Can be null now
-            user_id: userId,
-            content: body.content,
-            event_id: activeEvent?.id || null, // Active Event Link
-            chat_mode: currentMode,
-            history_is_visible: true
-        }
-        console.log('[Messages POST] Attempting Insert:', JSON.stringify(payload))
 
-        const { data, error } = await client
-            .from('messages')
-            .insert(payload)
-            .select()
-            .single()
+        // ------------------------------------------------------------------
+        // 2. Moderation Check & AI Rewrite Interception
+        // ------------------------------------------------------------------
+        const ip = getRequestHeader(event, 'x-forwarded-for') || event.node.req.socket.remoteAddress || 'unknown'
+        const userAgent = getRequestHeader(event, 'user-agent') || 'unknown'
+        const { fingerprintKey } = buildFingerprint(ip, userAgent)
+        const sessionId = getRequestHeader(event, 'x-session-id') || body.sessionId || 'unknown_session'
 
-        if (error) {
-            console.error('[Messages POST] INSERT FAILED:', error)
-            throw error
-        }
+        // FETCH MODERATION SETTINGS (Unified)
+        let aiEnabled = false
+        let dynamicBadWords: string[] = []
 
-        console.log('[Messages POST] Success:', data.id)
-
-        // 5. Update Last Seen (Async - Fire and Forget)
         try {
             const serviceClient = serverSupabaseServiceRole(event)
             if (serviceClient) {
-                await serviceClient.from('users')
-                    .update({ last_seen_at: new Date().toISOString() })
-                    .eq('id', userId)
+                const { data: modSettings, error: dbError } = await serviceClient
+                    .from('moderation_settings')
+                    .select('ai_persona_rewrite_enabled, bad_words')
+                    .eq('room_id', 'global')
+                    .single()
+
+                if (dbError) console.error('[Messages POST] Mod Settings Fetch Error:', dbError)
+
+                if (modSettings) {
+                    aiEnabled = modSettings.ai_persona_rewrite_enabled
+                    dynamicBadWords = modSettings.bad_words || []
+                    console.log('[Messages POST] Settings Loaded | AI:', aiEnabled, '| Blocked Words:', dynamicBadWords.length)
+                }
             }
-        } catch (updateErr) {
-            console.error('[Messages POST] Failed to update last_seen_at:', updateErr)
+        } catch (ignore) {
+            console.error('[Messages POST] Mod Settings Exception:', ignore)
         }
 
-        // LOG ANALYTICS EVENT (Fire and Forget)
+        const modDecision = await handleIncomingMessage({
+            sessionId,
+            fingerprintKey,
+            content: body.content,
+            dynamicBlockedWords: dynamicBadWords
+        })
+
+        let finalContent = body.content
+        let finalType = 'user'
+        let finalPayload = {}
+
+        if (modDecision.type === 'mute') {
+            throw createError({
+                statusCode: 429,
+                message: modDecision.reason,
+                data: { code: 'RATE_LIMITED', expires_at: modDecision.expiresAt }
+            })
+        } else if (modDecision.type === 'drop') {
+
+            // AI CHECK IS ALREADY DONE ABOVE
+            console.log(`[Messages POST] Drop Handling. Reason: "${modDecision.reason}" | AI Enabled: ${aiEnabled}`)
+
+            if (aiEnabled && modDecision.reason === 'Content filter triggered') {
+                console.log('[Messages POST] Blocked word detected. Rewriting via AI...')
+
+                try {
+                    const aiResult = await generatePersonaRewrite(body.content)
+                    console.log('[Messages POST] AI Rewrite Result:', aiResult)
+
+                    finalContent = aiResult // attribution is in sender name now
+                    finalType = 'system'
+                    finalPayload = {
+                        subtype: 'persona_rewrite',
+                        original_user_id: userId, // Metadata: Who said it
+                        original_text_blocked: true
+                    }
+                    // Proceed to insertion (Do NOT throw)
+                } catch (aiErr) {
+                    // Fallback should already be handled in generatePersonaRewrite, but just in case
+                    console.error('[Messages POST] AI Generation Failed (Outer):', aiErr)
+                    finalContent = "I must respectfully disagree."
+                    finalType = 'system'
+                    finalPayload = { subtype: 'fallback_rewrite', original_user_id: userId }
+                }
+            } else {
+                throw createError({
+                    statusCode: 403,
+                    message: "Message dropped.",
+                    data: { code: 'CONTENT_BLOCKED', message: modDecision.reason }
+                })
+            }
+        }
+
+
+        // ------------------------------------------------------------------
+        // 3. Final Context & Insertion
+        // ------------------------------------------------------------------
+        const { data: activeEvent } = await client.from('events').select('id').eq('is_active', true).single()
+        const { data: settings } = await client.from('chat_settings').select('event_mode').single()
+        const currentMode = settings?.event_mode || 'Live Event'
+
+        const insertPayload = {
+            room_id: null, // Legacy
+            user_id: userId,
+            content: finalContent,
+            type: finalType, // New Column
+            payload: finalPayload, // New Column
+            event_id: activeEvent?.id || null,
+            chat_mode: currentMode,
+            history_is_visible: true
+        }
+
+        const { data, error } = await client.from('messages').insert(insertPayload).select().single()
+        if (error) throw error
+
+        console.log('[Messages POST] Success:', data.id)
+
+        // Async Updates
         try {
+            const serviceClient = serverSupabaseServiceRole(event)
+            if (serviceClient) await serviceClient.from('users').update({ last_seen_at: new Date().toISOString() }).eq('id', userId)
+
             await client.from('app_events').insert({
-                event_type: 'message_sent',
+                event_type: finalType === 'system' ? 'system_message_generated' : 'message_sent',
                 user_id: userId,
-                room_id: roomId?.toString(),
                 payload: {
                     message_id: data.id,
-                    content: body.content,
-                    sender: senderName,
-                    is_admin: !!user,
-                    client_id: getRequestHeader(event, 'x-client-id') || 'unknown' // IMPORTANT: Used for Rate Limiting
+                    is_rewrite: finalType === 'system',
+                    client_id: getRequestHeader(event, 'x-client-id')
                 }
             })
-        } catch (logErr) {
-            console.error('[Messages POST] Failed to log analytics event:', logErr)
+        } catch (e) {
+            console.error('[Messages POST] Async update/log failed:', e)
         }
 
         return {
             ...data,
-            sender: senderName,
-            isAdmin: !!user
+            sender: finalType === 'system' ? `Ai Rewrite for ${senderName}` : senderName,
+            isAdmin: !!user,
+            type: finalType,
+            content: finalContent
         }
 
     } catch (err: any) {
-        console.error('[Messages POST] FAILURE:', err.message)
-
-        // If it's a known error with status code, rethrow cleanly
-        if (err.statusCode) {
-            throw createError({
-                statusCode: err.statusCode,
-                statusMessage: err.statusMessage || err.message,
-                message: err.message,
-                data: err.data
-            })
-        }
-
-        throw createError({
-            statusCode: 500,
-            statusMessage: 'Internal Server Error',
-            message: 'An unexpected error occurred.',
-            data: { details: err.message }
-        })
+        console.error('[Messages POST] Error:', err.message)
+        if (err.statusCode) throw createError(err)
+        throw createError({ statusCode: 500, message: err.message })
     }
 })
 

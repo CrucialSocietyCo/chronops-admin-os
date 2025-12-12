@@ -11,6 +11,7 @@ export default defineNuxtConfig({
 
 
   runtimeConfig: {
+    GOOGLE_GENERATIVE_AI_API_KEY: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
     public: {
       chatUrl: process.env.NUXT_PUBLIC_CHAT_URL || 'https://southmain.app'
     }

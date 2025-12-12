@@ -63,6 +63,8 @@ model Message {
   roomId     Int
   userId     Int
   content    String
+  type       String   @default("user")
+  payload    Json?
   isFlagged  Boolean  @default(false)
   flagReason String?
   createdAt  DateTime @default(now())

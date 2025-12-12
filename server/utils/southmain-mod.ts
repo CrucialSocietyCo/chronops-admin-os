@@ -296,9 +296,11 @@ export type MessageDecision =
     | { type: "mute"; expiresAt: string; reason: string };
 
 // Placeholder content filter
-function checkMessageForAbuse(content: string): boolean {
-    const badWords = ['spam', 'abuse', 'badword']; // Simple list
-    return badWords.some(w => content.toLowerCase().includes(w));
+function checkMessageForAbuse(content: string, dynamicList: string[] = []): boolean {
+    const hardcoded = ['spam', 'abuse', 'badword'];
+    const allBadWords = [...new Set([...hardcoded, ...dynamicList])];
+
+    return allBadWords.some(w => content.toLowerCase().includes(w.toLowerCase()));
 }
 
 const LIMITS = {
@@ -311,6 +313,7 @@ export async function handleIncomingMessage(args: {
     fingerprintKey: string;
     content: string;
     nowIso?: string;
+    dynamicBlockedWords?: string[]; // New Argument
 }): Promise<MessageDecision> {
     const now = args.nowIso || new Date().toISOString();
     const nowTime = new Date(now).getTime();
@@ -328,7 +331,7 @@ export async function handleIncomingMessage(args: {
     }
 
     // 2. Check Content (Optional hook)
-    if (checkMessageForAbuse(args.content)) {
+    if (checkMessageForAbuse(args.content, args.dynamicBlockedWords)) {
         // Drop logic
         return { type: "drop", reason: "Content filter triggered" };
     }

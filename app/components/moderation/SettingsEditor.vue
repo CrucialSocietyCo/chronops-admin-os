@@ -61,38 +61,16 @@
            </WindowFrame>
         </div>
 
-        <!-- WINDOW 4: POLICIES -->
-        <div class="masonry-item">
-          <WindowFrame title="Chat Policies">
-             <div class="form-group checkbox-group highlight-box">
-                 <input type="checkbox" id="chatEnabledSet" v-model="form.is_chat_enabled" />
-                 <label for="chatEnabledSet"><strong>Enable Global Chat</strong></label>
-             </div>
-             
-             <div class="checkbox-grid">
-                <div class="form-group checkbox-group">
-                    <input type="checkbox" id="profSet" v-model="form.profanity_filter_enabled" />
-                    <label for="profSet">Profanity Filter</label>
-                </div>
-                <div class="form-group checkbox-group">
-                    <input type="checkbox" id="linkSet" v-model="form.allow_links" />
-                    <label for="linkSet">Allow Links</label>
-                </div>
-                <div class="form-group checkbox-group">
-                    <input type="checkbox" id="pixelSet" v-model="form.allow_pixel_reactions" />
-                    <label for="pixelSet">Pixel Reactions</label>
-                </div>
-             </div>
-
-             <div class="form-row" style="marginTop: 10px;">
-                <RetroInput label="Max Message Length" v-model="form.max_message_length" type="number" class="flex-grow" />
-             </div>
-          </WindowFrame>
-        </div>
-
         <!-- WINDOW 5: CONTENT FILTER -->
         <div class="masonry-item">
            <WindowFrame title="Blocked Words">
+              <div class="form-group checkbox-group highlight-box" style="background: #e6f7ff; margin-bottom: 10px;">
+                 <input type="checkbox" id="aiRwSet" v-model="form.ai_persona_rewrite_enabled" />
+                 <div style="display:flex; flex-direction:column;">
+                    <label for="aiRwSet" style="font-weight:bold;">AI Persona Rewrite</label>
+                    <span style="font-size:10px; color:#555;">Replace blocked with corporate jargon.</span>
+                 </div>
+              </div>
               <textarea 
                 v-model="form.bad_words_str" 
                 rows="6" 
@@ -132,6 +110,7 @@ const form = ref({
   window_seconds: 10,
   mute_minutes: 5,
   bad_words_str: '',
+  ai_persona_rewrite_enabled: false,
   
   // House Controls (Legacy)
   is_chat_enabled: true,
@@ -149,10 +128,21 @@ const form = ref({
 const fetchSettings = async () => {
     try {
         loading.value = true
+        const client = useSupabaseClient()
+        const { data } = await client.auth.getSession()
+        const headers = data?.session?.access_token 
+            ? { Authorization: `Bearer ${data.session.access_token}` }
+            : {}
+
         const [modData, houseData] = await Promise.all([
-            $fetch('/api/moderation/settings').catch(() => ({})),
-            $fetch('/api/admin/house-controls').catch(() => ({}))
+            $fetch('/api/moderation/settings', { headers }).catch(err => {
+                console.error('Mod Settings Fetch Error:', err)
+                return {}
+            }),
+            $fetch('/api/admin/house-controls', { headers }).catch(() => ({}))
         ])
+
+        console.log('API Mod Settings Received:', modData)
 
         // Merge State
         form.value = {
@@ -161,6 +151,7 @@ const fetchSettings = async () => {
             window_seconds: (modData.rate_limit_window_ms || 10000) / 1000,
             mute_minutes: (modData.auto_mute_duration_ms || 300000) / 60000,
             bad_words_str: (modData.bad_words || []).join(', '),
+            ai_persona_rewrite_enabled: modData.ai_persona_rewrite_enabled || false,
             
             // Legacy Table
             is_chat_enabled: houseData.is_chat_enabled !== false,
@@ -195,7 +186,8 @@ const saveSettings = async () => {
             rate_limit_window_ms: parseInt(form.value.window_seconds) * 1000,
             auto_mute_duration_ms: parseInt(form.value.mute_minutes) * 60000,
             max_message_length: parseInt(form.value.max_message_length),
-            bad_words: form.value.bad_words_str.split(',').map(s => s.trim()).filter(s => s)
+            bad_words: form.value.bad_words_str.split(',').map(s => s.trim()).filter(s => s),
+            ai_persona_rewrite_enabled: form.value.ai_persona_rewrite_enabled
         }
 
         // Payload 2: House Controls (Chat Settings Table)

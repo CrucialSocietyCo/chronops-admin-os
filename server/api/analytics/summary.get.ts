@@ -64,10 +64,51 @@ export default defineEventHandler(async (event) => {
 
     const currentTypersEst = lastStatus?.payload?.active_typer_count || 0
 
+    // 5. Advanced Metrics: Typing Pulse & Engagement
+    // Pulse = Active Typers * Avg Burst Duration (from bursts in last 5m)
+    // We need burst ended events to get duration
+    const { data: burstEvents } = await client
+        .from('analytics_events')
+        .select('payload')
+        .eq('event_name', 'typing_burst_ended')
+        .gt('created_at', fiveMinutesAgo)
+        .limit(100)
+
+    let avgBurstDuration = 0
+    if (burstEvents && burstEvents.length > 0) {
+        const total = burstEvents.reduce((acc, row) => acc + (row.payload?.burst_duration_ms || 0), 0)
+        avgBurstDuration = Math.round(total / burstEvents.length)
+    }
+
+    // Pulse Score (0-100)
+    // Formula: (Avg Typers * 10) + (Avg Burst Secs * 5). Cap at 100.
+    const pulseScore = Math.min(100, Math.round((avgTypers * 10) + ((avgBurstDuration / 1000) * 5)))
+
+    // Engagement Ratio
+    // We need total active socket connections to calculate ratio properly.
+    // For now, we'll use a rough estimate if we don't have a reliable "total active users" count in this specific endpoint yet.
+    // Ideally, we'd fetch current presence count.
+    // Fallback: If currentTypersEst > 0, we imply activity. 
+    // Let's assume a baseline "connected" of at least the typers * 3 for a healthy room.
+    // Real impl would require fetching Supabase Presence or a "user_heartbeat" table.
+    // We will just return the raw typers count as part of the "Engagement" metric context for now.
+
+    // Spam Index (Low/Med/High)
+    // Low: < 5 limits/hr. Med: 5-20. High: > 20.
+    let spamIndex = 'Low'
+    const spamCountVal = spamCount || 0
+    if (spamCountVal > 20) spamIndex = 'High'
+    else if (spamCountVal > 5) spamIndex = 'Medium'
+
     return {
         avg_typers_5m: avgTypers,
-        spam_events_1h: spamCount || 0,
+        spam_events_1h: spamCountVal,
         avg_visibility_ms: avgVisibility,
-        current_typers_est: currentTypersEst
+        current_typers_est: currentTypersEst,
+
+        // Advanced
+        typing_pulse_score: pulseScore,
+        avg_burst_duration_ms: avgBurstDuration,
+        spam_index: spamIndex
     }
 })

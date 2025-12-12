@@ -25,7 +25,7 @@
               <span class="icon">📊</span> Dashboard
             </NuxtLink>
             <NuxtLink to="/admin/events" class="nav-item" active-class="active">
-              <span class="icon">📅</span> Event Management
+              <span class="icon">📅</span> Events Management
             </NuxtLink>
             <NuxtLink to="/admin/users" class="nav-item" active-class="active">
               <span class="icon">👥</span> Users

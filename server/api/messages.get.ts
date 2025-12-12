@@ -66,7 +66,11 @@ export default defineEventHandler(async (event) => {
     if (!messages || messages.length === 0) return []
 
     // 3. User Mapping (Manual Join fallback)
-    const userIds = [...new Set(messages.map((m: any) => m.user_id).filter(Boolean))]
+    const userIds = [...new Set(messages.map((m: any) => {
+        // Collect normal user_id AND original_user_id from payload if present
+        return [m.user_id, m.payload?.original_user_id].filter(Boolean)
+    }).flat())]
+
     let userMap: Record<number, { name: string, isAdmin: boolean }> = {}
 
     if (userIds.length > 0) {
@@ -83,14 +87,27 @@ export default defineEventHandler(async (event) => {
     }
 
     // Transform for frontend
-    return messages.reverse().map((msg: any) => ({
-        id: msg.id,
-        sender: userMap[msg.user_id]?.name || 'Unknown', // Use manual map
-        isAdmin: userMap[msg.user_id]?.isAdmin === true,
-        content: msg.content,
-        color: 'white',
-        type: 'user',
-        created_at: msg.created_at,
-        chat_mode: msg.chat_mode
-    }))
+    return messages.reverse().map((msg: any) => {
+        let senderName: string
+        if (msg.type === 'system' && msg.payload?.original_user_id) {
+            const originalUser = userMap[msg.payload.original_user_id]?.name || 'User'
+            senderName = `Ai Rewrite from ${originalUser}`
+        } else if (msg.type === 'system') {
+            senderName = 'System'
+        } else {
+            senderName = userMap[msg.user_id]?.name || 'Unknown'
+        }
+
+        return {
+            id: msg.id,
+            sender: senderName,
+            isAdmin: userMap[msg.user_id]?.isAdmin === true,
+            content: msg.content,
+            color: 'white',
+            type: msg.type || 'user',
+            payload: msg.payload,
+            created_at: msg.created_at,
+            chat_mode: msg.chat_mode
+        }
+    })
 })
