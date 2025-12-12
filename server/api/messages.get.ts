@@ -11,9 +11,7 @@ export default defineEventHandler(async (event) => {
     console.log('[Messages GET] Starting Fetch...')
 
     // DEBUG LOG
-    const fs = await import('node:fs')
-    const LOG_FILE = process.cwd() + '/server-debug.log'
-    const log = (msg: string) => fs.appendFileSync(LOG_FILE, `[MessagesGET] ${new Date().toISOString()} ${msg}\n`)
+    // Debug Log Removed for Production Safety
 
     // We still check the event to respect "show_chat_history" boolean
     const { data: activeEvent } = await adminClient
@@ -64,15 +62,14 @@ export default defineEventHandler(async (event) => {
     const { data: messages, error } = await messagesQueryBuilder
 
     if (error) {
-        log(`Supabase Error: ${error.message}`)
+        // log removed
         console.error('[Messages GET] Supabase Error:', error)
         return []
     }
 
-    log(`Found ${messages?.length || 0} messages. ActiveEventID: ${activeEvent?.id || 'None'}`)
+    // log removed
     if (messages && messages.length > 0) {
-        // Log first message to see if it's the one we just added
-        log(`Top Message: ID=${messages[0].id} Content="${messages[0].content}" Type=${messages[0].type} PayloadSubtype=${messages[0].payload?.subtype}`)
+        // log first message removed
     }
 
     console.log(`[Messages GET] Found ${messages?.length || 0} messages.`)
