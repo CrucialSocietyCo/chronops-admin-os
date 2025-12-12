@@ -129,11 +129,22 @@ const freezeChat = () => {
   setTimeout(() => saveMessage.value = '', 3000)
 }
 
-const sendTopicPrompt = () => {
+const sendTopicPrompt = async () => {
   if (!settings.value.topic_prompt_text) return
-  // In a real implementation, this would broadcast the prompt
-  saveMessage.value = `Prompt sent: "${settings.value.topic_prompt_text}"`
-  setTimeout(() => saveMessage.value = '', 3000)
+  
+  try {
+      saving.value = true
+      await $fetch('/api/admin/send-prompt', {
+          method: 'POST',
+          body: { text: `*** Topic: ${settings.value.topic_prompt_text} ***` } // Format nicely
+      })
+      saveMessage.value = `Prompt broadcasted!`
+      setTimeout(() => saveMessage.value = '', 3000)
+  } catch (err: any) {
+      error.value = 'Failed to send prompt: ' + err.message
+  } finally {
+      saving.value = false
+  }
 }
 
 const saveSnapshot = () => {
