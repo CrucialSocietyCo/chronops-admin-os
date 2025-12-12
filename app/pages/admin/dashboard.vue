@@ -46,7 +46,7 @@
       </div>
       
       <div class="side-column">
-        <WindowFrame title="Aesthetics" class="aesthetics-window">
+        <WindowFrame title="Aesthetics" class="aesthetics-window" height="auto">
           <div class="aesthetics-content">
             <div class="form-group">
               <label>Border Style</label>

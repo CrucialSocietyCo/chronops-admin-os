@@ -121,7 +121,6 @@ export default defineEventHandler(async (event) => {
             type: msg.type || 'user',
             payload: msg.payload,
             created_at: msg.created_at,
-            created_at: msg.created_at,
             chat_mode: msg.chat_mode,
             reactions: processReactions(msg.id, reactionsData, sessionId)
         }

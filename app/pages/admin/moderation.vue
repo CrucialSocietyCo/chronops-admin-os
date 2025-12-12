@@ -1,3 +1,4 @@
+<template>
   <div class="moderation-page">
       <div class="tabs">
           <button @click="currentTab = 'settings'" :class="{ active: currentTab === 'settings' }">Settings</button>
