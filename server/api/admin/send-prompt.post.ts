@@ -46,6 +46,12 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 400, message: 'Missing prompt text' })
     }
 
+    // Get Active Event for FK
+    const { data: activeEvent } = await client.from('events').select('id').eq('is_active', true).single()
+    const eventId = activeEvent?.id || null
+
+    console.log('[SendPrompt] Inserting message for User:', finalUserId, 'Event:', eventId)
+
     // Insert System Message
     const { data, error } = await client
         .from('messages')
@@ -54,13 +60,15 @@ export default defineEventHandler(async (event) => {
             sender: 'OnlineHost',
             type: 'system',
             user_id: finalUserId,
+            event_id: eventId, // Required FK
             history_is_visible: true
         })
         .select()
         .single()
 
     if (error) {
-        throw createError({ statusCode: 500, message: error.message })
+        console.error('[SendPrompt] Insert Failed:', error)
+        throw createError({ statusCode: 500, message: `Insert Failed: ${error.message}` })
     }
 
     return { success: true, messageId: data.id }
