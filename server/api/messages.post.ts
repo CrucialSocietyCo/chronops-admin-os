@@ -272,10 +272,22 @@ export default defineEventHandler(async (event) => {
 
     } catch (err: any) {
         console.error('[Messages POST] FAILURE:', err.message)
+
+        // If it's a known error with status code, rethrow cleanly
+        if (err.statusCode) {
+            throw createError({
+                statusCode: err.statusCode,
+                statusMessage: err.statusMessage || err.message,
+                message: err.message,
+                data: err.data
+            })
+        }
+
         throw createError({
-            statusCode: err.statusCode || 500,
-            statusMessage: err.statusMessage || 'Internal Server Error',
-            data: { message: err.message, details: err }
+            statusCode: 500,
+            statusMessage: 'Internal Server Error',
+            message: 'An unexpected error occurred.',
+            data: { details: err.message }
         })
     }
 })
