@@ -24,6 +24,7 @@ export default defineEventHandler(async (event) => {
         show_history: activeEvent ? activeEvent.show_chat_history : true,
         chat_mode: settings?.event_mode || 'Live Event',
         is_chat_enabled: settings?.is_chat_enabled ?? true,
-        color_theme: settings?.color_theme || 'Teal Base'
+        color_theme: settings?.color_theme || 'Teal Base',
+        admin_badge_style: settings?.admin_badge_style || 'Star Icon'
     }
 })
