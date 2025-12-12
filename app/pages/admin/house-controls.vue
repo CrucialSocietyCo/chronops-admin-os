@@ -3,7 +3,7 @@
     <div v-if="error" class="error">{{ error }}</div>
     
     <form @submit.prevent="saveSettings" class="settings-form">
-      <div class="responsive-grid">
+      <div class="masonry-grid">
         <!-- GROUP 1: Pinned Items & Announcements -->
         <div class="grid-item">
           <WindowFrame title="Pinned Items" height="auto">
@@ -211,7 +211,7 @@ onMounted(() => {
 @use '~/assets/scss/_mixins.scss' as *;
 
 .house-controls-page {
-  max-width: 1200px; /* Increased width for masonry */
+  max-width: 1600px; /* Increased width for masonry */
   margin: 0 auto;
   padding-bottom: 40px;
 }
@@ -223,8 +223,12 @@ onMounted(() => {
 
 .masonry-grid {
   column-count: 3;
-  column-gap: 15px;
+  column-gap: 20px;
   width: 100%;
+
+  @media (min-width: 1400px) {
+    column-count: 4;
+  }
   
   /* Trigger 2 columns much earlier (tablets/small laptops) */
   @media (max-width: 1000px) {
