@@ -33,11 +33,8 @@ export default defineNuxtConfig({
 
   css: ['~/assets/scss/main.scss'],
 
-  routeRules: {
-    '/api/**': {
-      cors: true,
-    },
-  },
+  // We utilize server/middleware/cors.ts for granular CORS control
+  // '/api/**': { cors: true },
 
   vite: {
     css: {
