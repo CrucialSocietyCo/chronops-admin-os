@@ -3,24 +3,24 @@
     <div v-if="error" class="error">{{ error }}</div>
     
     <form @submit.prevent="saveSettings" class="settings-form">
-      <div class="masonry-grid">
-        <!-- GROUP 1: Pinned Items & Announcements -->
-        <div class="grid-item">
-          <WindowFrame title="Pinned Items" height="auto">
+    <div class="bento-grid">
+        <!-- GROUP 1: Pinned Items (Wide, Top Left) -->
+        <div class="grid-item area-pinned">
+          <WindowFrame title="Pinned Items" height="100%">
             <PinnedItemsManager />
           </WindowFrame>
         </div>
 
-        <!-- NEW: Live Voice Drop -->
-        <div class="grid-item">
-           <WindowFrame title="Live Voice Drop">
+        <!-- NEW: Live Voice Drop (Top Right) -->
+        <div class="grid-item area-voice">
+           <WindowFrame title="Live Voice Drop" height="100%">
               <AudioRecorder @sent="fetchSettings" />
            </WindowFrame>
         </div>
 
-        <!-- GROUP 2: Admin Signal Tools -->
-        <div class="grid-item">
-          <WindowFrame title="Admin Signals">
+        <!-- GROUP 2: Admin Signal Tools (Middle Left) -->
+        <div class="grid-item area-signals">
+          <WindowFrame title="Admin Signals" height="100%">
             <div class="form-row">
               <div class="form-group checkbox-group">
                 <input type="checkbox" id="adminHighlight" v-model="settings.admin_highlight_enabled" />
@@ -35,9 +35,9 @@
           </WindowFrame>
         </div>
 
-        <!-- GROUP 6: Event Scheduling -->
-        <div class="grid-item">
-          <WindowFrame title="Scheduling">
+        <!-- GROUP 6: Event Scheduling (Middle Center) -->
+        <div class="grid-item area-sched">
+          <WindowFrame title="Scheduling" height="100%">
             <div class="form-group checkbox-group">
               <input type="checkbox" id="schedulingEnabled" v-model="settings.is_scheduling_enabled" />
               <label for="schedulingEnabled">Enable Scheduling</label>
@@ -54,9 +54,9 @@
           </WindowFrame>
         </div>
 
-        <!-- GROUP 7: System Snapshots -->
-        <div class="grid-item">
-          <WindowFrame title="Snapshots">
+        <!-- GROUP 7: System Snapshots (Bottom Full Width) -->
+        <div class="grid-item area-snaps">
+          <WindowFrame title="Snapshots" height="auto">
             <div class="snapshot-controls">
               <RetroButton type="button" @click="saveSnapshot">Save Snapshot</RetroButton>
               <select class="retro-select flex-grow">
@@ -211,51 +211,68 @@ onMounted(() => {
 @use '~/assets/scss/_mixins.scss' as *;
 
 .house-controls-page {
-  max-width: 1600px; /* Increased width for masonry */
+  max-width: 1600px;
   margin: 0 auto;
   padding-bottom: 40px;
 }
 
-/* CSS Masonry Layout (CSS Columns) */
-.settings-form {
-  /* No specific styles needed for wrapper */
+/* Bento Box Grid Layout */
+.bento-grid {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 1fr; /* Custom ratios */
+    grid-template-rows: auto auto auto;
+    gap: 15px;
+    grid-template-areas:
+        "pinned pinned voice"
+        "signals sched voice" /* Voice Drop spans 2 rows for height */
+        "snaps snaps snaps";
 }
 
-.masonry-grid {
-  column-count: 4; /* Default to 4 for wide screens (Pinterest style) */
-  column-gap: 15px; /* Tighter gap */
-  width: 100%;
-  
-  /* Large Laptops */
-  @media (max-width: 1600px) {
-    column-count: 3;
-  }
-  
-  /* Laptops / Tablets Landscape */
-  @media (max-width: 1200px) {
-    column-count: 2;
-  }
+/* Grid Areas */
+.area-pinned { grid-area: pinned; }
+.area-voice { grid-area: voice; }
+.area-signals { grid-area: signals; }
+.area-sched { grid-area: sched; }
+.area-snaps { grid-area: snaps; }
 
-  /* Mobile */
-  @media (max-width: 768px) {
-    column-count: 1;
-  }
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .bento-grid {
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+            "pinned pinned"
+            "voice voice"
+            "signals sched"
+            "snaps snaps";
+    }
+}
+
+@media (max-width: 768px) {
+    .bento-grid {
+        display: flex;
+        flex-direction: column;
+    }
 }
 
 .grid-item {
-  break-inside: avoid-column; /* Prevent split across columns */
-  page-break-inside: avoid;
-  display: block; /* Ensure block formatting */
   width: 100%;
-  margin-bottom: 15px; /* Tighter vertical spacing */
+  height: 100%; /* Stretch to fill grid cell */
+  min-height: 0; /* allows flex/grid children to shrink */
   
-  /* Ensure WindowFrame doesn't stretch infinitely if it has height:100% */
-  height: auto !important; 
+  /* Ensure WindowFrame fills height */
+  display: flex;
+  flex-direction: column;
 }
 
-/* Override WindowFrame height in this context to shrink-wrap content */
+/* Override WindowFrame to fill container in Grid */
 :deep(.window-frame) {
-  height: auto !important;
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+:deep(.window-content) {
+    flex: 1; /* Push footer down if any */
 }
 
 /* Internal grid for Scheduling window inputs (Keep as Grid) */
@@ -265,7 +282,7 @@ onMounted(() => {
   gap: 15px;
   align-items: center;
   
-  @media (max-width: 450px) {
+  @media (max-width: 600px) {
      grid-template-columns: 1fr;
   }
 }
@@ -278,7 +295,7 @@ onMounted(() => {
   
   &:last-child { margin-bottom: 0; }
   
-  @media (max-width: 450px) {
+  @media (max-width: 600px) {
     flex-direction: column;
     align-items: stretch;
   }
@@ -332,6 +349,17 @@ onMounted(() => {
   background: #c0c0c0;
   border-top: 1px solid #fff;
   box-shadow: 0 -1px 0 #808080;
+  flex-wrap: wrap; /* Allow wrapping on small screens */
+
+  @media (max-width: 600px) {
+      justify-content: center;
+      flex-direction: column;
+      align-items: stretch;
+      
+      .save-button {
+          width: 100%;
+      }
+  }
 }
 
 .status-message {

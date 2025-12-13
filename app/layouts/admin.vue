@@ -18,31 +18,46 @@
     </div>
 
     <div class="main-container">
-      <div class="sidebar">
+      <!-- Mobile Menu Toggle (Only visible on mobile) -->
+      <div class="mobile-menu-toggle" @click="toggleSidebar">
+          <img src="https://win98icons.alexmeub.com/icons/png/computer_explorer-0.png" />
+          <span>Menu</span>
+      </div>
+
+      <!-- Backdrop for mobile sidebar -->
+      <div class="sidebar-backdrop" 
+           :class="{ 'visible': isSidebarOpen }" 
+           @click="closeMobileSidebar">
+      </div>
+
+      <div class="sidebar" :class="{ 'mobile-hidden': !isSidebarOpen, 'mobile-visible': isSidebarOpen }">
         <WindowFrame title="Menu" class="sidebar-window">
+          <!-- Close button for mobile -->
+          <div class="mobile-close-btn" @click="toggleSidebar">x</div>
+          
           <nav class="nav-menu">
-            <NuxtLink to="/admin/dashboard" class="nav-item" active-class="active">
+            <NuxtLink to="/admin/dashboard" class="nav-item" active-class="active" @click="closeMobileSidebar">
               <span class="icon">📊</span> Dashboard
             </NuxtLink>
-            <NuxtLink to="/admin/events" class="nav-item" active-class="active">
+            <NuxtLink to="/admin/events" class="nav-item" active-class="active" @click="closeMobileSidebar">
               <span class="icon">📅</span> Events Management
             </NuxtLink>
-            <NuxtLink to="/admin/users" class="nav-item" active-class="active">
+            <NuxtLink to="/admin/users" class="nav-item" active-class="active" @click="closeMobileSidebar">
               <span class="icon">👥</span> Users
             </NuxtLink>
-            <NuxtLink to="/admin/house-controls" class="nav-item" active-class="active">
+            <NuxtLink to="/admin/house-controls" class="nav-item" active-class="active" @click="closeMobileSidebar">
               <span class="icon">🏠</span> House Controls
             </NuxtLink>
-            <NuxtLink to="/admin/analytics" class="nav-item" active-class="active">
+            <NuxtLink to="/admin/analytics" class="nav-item" active-class="active" @click="closeMobileSidebar">
               <span class="icon">📈</span> Live Analytics
             </NuxtLink>
-            <NuxtLink to="/admin/moderation" class="nav-item" active-class="active">
+            <NuxtLink to="/admin/moderation" class="nav-item" active-class="active" @click="closeMobileSidebar">
               <span class="icon">🛡️</span> Moderation
             </NuxtLink>
-            <NuxtLink to="/admin/system-health" class="nav-item" active-class="active">
+            <NuxtLink to="/admin/system-health" class="nav-item" active-class="active" @click="closeMobileSidebar">
               <span class="icon">💻</span> System Health
             </NuxtLink>
-            <NuxtLink to="/admin/settings" class="nav-item" active-class="active">
+            <NuxtLink to="/admin/settings" class="nav-item" active-class="active" @click="closeMobileSidebar">
               <span class="icon">⚙️</span> Settings
             </NuxtLink>
           </nav>
@@ -67,12 +82,12 @@
     <div class="start-menu-bar">
       <NuxtLink to="/admin/dashboard" class="start-button">
         <img src="https://win98icons.alexmeub.com/icons/png/windows_slanted-1.png" alt="logo" />
-        Society on South Main
+        <span class="start-text">Society on South Main</span>
       </NuxtLink>
       <div class="right-controls">
         <button @click="handleLogout" class="logout-button">
           <img src="https://win98icons.alexmeub.com/icons/png/key_padlock-0.png" alt="logout" />
-          Log Off
+          <span class="logout-text">Log Off</span>
         </button>
         <div class="clock">{{ time }}</div>
       </div>
@@ -94,6 +109,7 @@ let timer: NodeJS.Timer
 
 const isChatEnabled = ref(false)
 const settingsId = ref<number | null>(null)
+const isSidebarOpen = ref(false)
 
 // Shared Theme State
 const currentTheme = useState('adminTheme', () => 'Teal Base')
@@ -107,6 +123,13 @@ const themeMap: Record<string, string> = {
 
 const backgroundColor = computed(() => themeMap[currentTheme.value] || '#008080')
 
+const toggleSidebar = () => {
+    isSidebarOpen.value = !isSidebarOpen.value
+}
+
+const closeMobileSidebar = () => {
+    isSidebarOpen.value = false
+}
 
 const fetchSettings = async () => {
   try {
@@ -219,7 +242,6 @@ onUnmounted(() => {
 
 .admin-desktop {
   height: 100vh;
-  /* Dynamic style handled in template */
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -232,12 +254,104 @@ onUnmounted(() => {
   overflow: hidden;
   padding: 10px;
   gap: 10px;
+  position: relative; /* Context for absolute sidebar */
+}
+
+/* Mobile Toggle */
+.mobile-menu-toggle {
+    display: none; /* Hidden on desktop */
+    padding: 6px 10px;
+    background: #c0c0c0;
+    border: 2px outset #fff;
+    cursor: pointer;
+    align-items: center;
+    gap: 6px;
+    font-weight: bold;
+    user-select: none;
+    margin-bottom: 10px;
+    
+    &:active {
+        border-style: inset;
+    }
+    
+    img { width: 16px; height: 16px; }
+}
+
+.sidebar-backdrop {
+    display: none;
 }
 
 .sidebar {
   width: 200px;
   flex-shrink: 0;
   height: 100%;
+  z-index: 200;
+  transition: transform 0.3s ease;
+}
+
+.mobile-close-btn { display: none; }
+
+@media (max-width: 768px) {
+  .main-container {
+      flex-direction: column;
+  }
+
+  .mobile-menu-toggle {
+      display: flex;
+      width: fit-content;
+  }
+
+  .sidebar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 250px; /* Slightly wider for ease of use */
+      background: #c0c0c0;
+      box-shadow: 4px 0 10px rgba(0,0,0,0.5);
+      
+      /* Hidden Logic */
+      transform: translateX(-110%);
+      
+      &.mobile-visible {
+          transform: translateX(0);
+      }
+  }
+
+  .sidebar-backdrop {
+      display: block;
+      position: absolute; /* Cover the main container */
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.4); /* Dim the background */
+      z-index: 150; /* Below sidebar (200) */
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      
+      &.visible {
+          opacity: 1;
+          pointer-events: auto;
+      }
+  }
+
+  .mobile-close-btn {
+      display: block;
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      width: 20px;
+      height: 20px;
+      background: red;
+      color: white;
+      text-align: center;
+      line-height: 20px;
+      cursor: pointer;
+      font-weight: bold;
+      border: 1px outset white;
+  }
 }
 
 .sidebar-window {
@@ -322,7 +436,7 @@ onUnmounted(() => {
   justify-content: space-between;
   padding: 2px;
   z-index: 1000;
-  border-top: 1px solid white; /* Ensure top border for bottom bar */
+  border-top: 1px solid white;
 
   .start-button {
     @include retro-button;
@@ -359,6 +473,10 @@ onUnmounted(() => {
       height: 16px;
     }
   }
+  
+  @media (max-width: 600px) {
+      .start-text, .logout-text { display: none; }
+  }
 
   .clock {
     @include retro-border-inset;
@@ -374,8 +492,8 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 8px;
-  border-bottom: 1px solid white; /* Changed from border-top to border-bottom */
-  box-shadow: 0 1px 0 #808080; /* Shadow below */
+  border-bottom: 1px solid white;
+  box-shadow: 0 1px 0 #808080;
 
   .address-label {
     font-size: 12px;
@@ -393,9 +511,16 @@ onUnmounted(() => {
   }
 
   .breadcrumbs {
-    display: flex;
-    align-items: center;
-    font-size: 12px;
+      display: flex;
+      align-items: center;
+      font-size: 12px;
+      white-space: nowrap;
+      overflow-x: auto;
+      
+      /* Hide scrollbar */
+      scrollbar-width: none; 
+      -ms-overflow-style: none;
+      &::-webkit-scrollbar { display: none; }
   }
 
   .crumb-item {

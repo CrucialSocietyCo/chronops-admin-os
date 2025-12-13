@@ -148,7 +148,7 @@ onMounted(() => {
   justify-content: space-between;
   margin-bottom: 5px;
   font-family: 'Courier New', monospace;
-  font-size: 14px;
+  font-size: 10px;
 }
 
 .label {
