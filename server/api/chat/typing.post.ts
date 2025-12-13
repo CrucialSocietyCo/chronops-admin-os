@@ -24,16 +24,25 @@ export default defineEventHandler(async (event) => {
     // Let's use fingerprintKey directly as actor_id per previous tasks
     const actorId = fingerprintKey
 
-    let displayName = 'Guest'
+    // Default to body username (trusted from client for ephemeral typing) or Guest
+    // We sanitize it slightly to prevent massive strings
+    let displayName = (body.username && typeof body.username === 'string')
+        ? body.username.substring(0, 20)
+        : 'Guest'
+
     if (client) {
-        const { data: persona } = await client
+        const { data: persona, error } = await client
             .from('personas')
             .select('display_name')
             .eq('actor_id', actorId)
             .eq('is_active', true)
             .maybeSingle()
 
-        if (persona) displayName = persona.display_name
+        if (persona) {
+            displayName = persona.display_name
+        }
+
+        console.log(`[Typing] Actor: ${actorId} -> Name: ${displayName} (Error: ${error?.message})`)
     }
 
     // 5. Update Typing State with Name
