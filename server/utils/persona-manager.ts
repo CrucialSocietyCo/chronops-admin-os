@@ -30,7 +30,6 @@ export async function ensurePersonaForActor(event: H3Event, actorId: string, dis
     // 3. Logic: Rename = New Persona
     if (activePersona) {
         if (activePersona.display_name !== displayName) {
-            console.log(`[PersonaManager] Renaming ${activePersona.display_name} -> ${displayName}`)
 
             // Retire Old
             await client.from('personas').update({

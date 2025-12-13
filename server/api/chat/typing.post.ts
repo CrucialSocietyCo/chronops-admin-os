@@ -42,7 +42,6 @@ export default defineEventHandler(async (event) => {
             displayName = persona.display_name
         }
 
-        console.log(`[Typing] Actor: ${actorId} -> Name: ${displayName} (Error: ${error?.message})`)
     }
 
     // 5. Update Typing State with Name
