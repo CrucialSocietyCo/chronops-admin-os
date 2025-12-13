@@ -13,8 +13,13 @@ interface RateLimit {
     mutedUntil: number
 }
 
+interface ActiveTyper {
+    expiresAt: number
+    displayName: string
+}
+
 class TypingManager {
-    private activeTypers: Map<string, number> = new Map() // userId -> expiresAt
+    private activeTypers: Map<string, ActiveTyper> = new Map() // userId -> { expiresAt, displayName }
     private rateLimits: Map<string, RateLimit> = new Map() // ip -> limit info
 
     // Analytics State
@@ -23,9 +28,9 @@ class TypingManager {
     private roomActiveInterval: NodeJS.Timeout | null = null
 
     // Singleton instance methods wrapper
-    public async handleTyping(event: any, ip: string, userId: string, action: 'start' | 'stop') {
+    public async handleTyping(event: any, ip: string, userId: string, displayName: string, action: 'start' | 'stop') {
         const now = Date.now()
-        const clientId = userId // Using clientId as userId for anonymous
+        const clientId = userId
 
         // 1. Rate Limiting
         let limit = this.rateLimits.get(ip)
@@ -50,7 +55,6 @@ class TypingManager {
         if (limit.count > MAX_RATE_LIMIT) {
             limit.mutedUntil = now + MUTE_DURATION_MS
 
-            // Log Abuse
             await logAnalyticsEvent(event, 'typing_rate_limit_triggered', {
                 clientId,
                 payload: { limit: MAX_RATE_LIMIT, occurrences: limit.count }
@@ -64,35 +68,32 @@ class TypingManager {
         }
 
         // 2. Update State
-        const prevKeys = Array.from(this.activeTypers.keys()).sort().join(',')
         const prevCount = this.activeTypers.size
+        const prevKeys = this.getBroadcastKeys()
 
         if (action === 'stop') {
             this.activeTypers.delete(userId)
         } else {
-            this.activeTypers.set(userId, now + TYPING_TIMEOUT_MS)
+            this.activeTypers.set(userId, { expiresAt: now + TYPING_TIMEOUT_MS, displayName })
         }
 
         // 3. Clean Expired
         this.cleanUp()
 
-        const currentKeys = Array.from(this.activeTypers.keys()).sort().join(',')
         const currentCount = this.activeTypers.size
-        const isActive = currentCount > 0
+        const currentKeys = this.getBroadcastKeys()
 
         // 4. Analytics: Transitions
         if (prevCount === 0 && currentCount > 0) {
-            // SHOW
             this.indicatorShownAt = now
             this.maxTypersSession = currentCount
-            this.startRoomActiveLogging(event) // Start heartbeat
+            this.startRoomActiveLogging(event)
 
             logAnalyticsEvent(event, 'typing_indicator_shown', {
                 clientId,
                 payload: { active_typer_count_at_show: currentCount }
             })
         } else if (prevCount > 0 && currentCount === 0) {
-            // HIDE
             const duration = this.indicatorShownAt ? now - this.indicatorShownAt : 0
             this.stopRoomActiveLogging()
 
@@ -107,7 +108,6 @@ class TypingManager {
             this.indicatorShownAt = null
             this.maxTypersSession = 0
         } else if (currentCount > 0) {
-            // Update Max
             if (currentCount > this.maxTypersSession) {
                 this.maxTypersSession = currentCount
             }
@@ -115,43 +115,31 @@ class TypingManager {
 
         // 5. Broadcast if Set Changed
         if (prevKeys !== currentKeys) {
-            await this.broadcastState(event, Array.from(this.activeTypers.keys()))
+            await this.broadcastState(event)
         }
 
-        return { allowed: true, isActive }
+        return { allowed: true, isActive: currentCount > 0 }
     }
 
     private cleanUp() {
         const now = Date.now()
-        for (const [userId, expiresAt] of this.activeTypers.entries()) {
-            if (expiresAt < now) {
+        for (const [userId, data] of this.activeTypers.entries()) {
+            if (data.expiresAt < now) {
                 this.activeTypers.delete(userId)
             }
         }
     }
 
+    // New helper to get stable list key
+    private getBroadcastKeys(): string {
+        return Array.from(this.activeTypers.keys()).sort().join(',')
+    }
+
     private startRoomActiveLogging(event: any) {
         if (this.roomActiveInterval) clearInterval(this.roomActiveInterval)
 
-        // Capture context for the interval (warn: event object might be stale if used directly, 
-        // but logAnalyticsEvent extracts headers immediately or we pass minimal context)
-        // Ideally we shouldn't rely on the original 'event' object for long-lived intervals if it holds request refs.
-        // However, standard H3 event usage in Nuxt server utils is tricky for intervals.
-        // We will mock the context for the interval logger since we just need db access.
-        // Wait, logAnalyticsEvent needs 'event' to get serverSupabaseServiceRole.
-        // We can create a scoped client or pass the client if possible. 
-        // Or we assume the singleton 'event' from the closure is valid, which is risky.
-        // BETTER: logAnalyticsEvent should accept a client OR event.
-        // For now, let's just use the event passed in. If it fails later due to context loss, we'll fix it.
-        // Actually, serverSupabaseServiceRole needs a request context usually.
-        // If we can't get a fresh event, we might skip the heartbeat or just log "active" on activity.
-        // Requirement: "At most once every 10 seconds per room."
-
         this.roomActiveInterval = setInterval(() => {
             if (this.activeTypers.size > 0) {
-                // We need an event context to get the supabase client
-                // In a real long-running process we'd have a persistent admin client.
-                // For this scoped function, re-using 'event' is the best effort.
                 logAnalyticsEvent(event, 'typing_indicator_room_active', {
                     payload: { active_typer_count: this.activeTypers.size }
                 })
@@ -168,15 +156,21 @@ class TypingManager {
         }
     }
 
-    private async broadcastState(event: any, activeUserIds: string[]) {
+    private async broadcastState(event: any) {
         try {
             const client = serverSupabaseServiceRole(event)
             if (!client) return
 
+            // Extract names for the frontend
+            const activeTypersList = Array.from(this.activeTypers.entries()).map(([id, data]) => ({
+                id,
+                name: data.displayName
+            }))
+
             await client.channel('room:general').send({
                 type: 'broadcast',
                 event: 'typing_update',
-                payload: { activeUserIds }
+                payload: { activeTypers: activeTypersList }
             })
         } catch (err) {
             console.error('[TypingManager] Broadcast failed', err)

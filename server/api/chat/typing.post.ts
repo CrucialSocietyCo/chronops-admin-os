@@ -1,4 +1,6 @@
 import { typingManager } from '../../utils/typing-manager'
+import { buildFingerprint } from '../../utils/southmain-mod'
+import { serverSupabaseServiceRole } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
     const body = await readBody(event)
@@ -11,9 +13,31 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 400, message: 'Missing Client ID' })
     }
 
+    const userAgent = getRequestHeader(event, 'user-agent') || 'unknown'
+    const { fingerprintKey } = buildFingerprint(ip, userAgent)
+
     const action = body.status === 'start' ? 'start' : 'stop'
 
-    const result = await typingManager.handleTyping(event, ip, clientId, action)
+    // 4. Resolve Identity (Persona)
+    const client = serverSupabaseServiceRole(event)
+    // Resolve Actor ID from fingerprint (hash of fingerprintKey) - actually SouthMain uses fingerprintKey AS actor_id usually
+    // Let's use fingerprintKey directly as actor_id per previous tasks
+    const actorId = fingerprintKey
+
+    let displayName = 'Guest'
+    if (client) {
+        const { data: persona } = await client
+            .from('personas')
+            .select('display_name')
+            .eq('actor_id', actorId)
+            .eq('is_active', true)
+            .maybeSingle()
+
+        if (persona) displayName = persona.display_name
+    }
+
+    // 5. Update Typing State with Name
+    const result = await typingManager.handleTyping(event, ip, clientId, displayName, action)
 
     if (!result.allowed) {
         if (result.mutedUntil) {
