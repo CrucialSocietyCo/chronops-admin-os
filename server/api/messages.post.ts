@@ -1,5 +1,6 @@
 import { serverSupabaseClient, serverSupabaseUser, serverSupabaseServiceRole } from '#supabase/server'
 import { handleIncomingMessage, buildFingerprint } from '../utils/southmain-mod'
+import { ensurePersonaForActor, incrementStats } from '../utils/persona-manager'
 
 
 export default defineEventHandler(async (event) => {
@@ -265,6 +266,14 @@ Input message to rewrite:
         // ------------------------------------------------------------------
         // 3. Final Context & Insertion
         // ------------------------------------------------------------------
+        let personaId = null
+        try {
+            personaId = await ensurePersonaForActor(event, fingerprintKey, senderName)
+            console.log(`[Messages POST] Persona Resolved: ${personaId} for ${senderName}`)
+        } catch (e) {
+            console.error('[Messages POST] Persona Resolution Failed:', e)
+        }
+
         const { data: activeEvent } = await client.from('events').select('id').eq('is_active', true).single()
         const { data: settings } = await client.from('chat_settings').select('event_mode').single()
         const currentMode = settings?.event_mode || 'Live Event'
@@ -277,7 +286,8 @@ Input message to rewrite:
             payload: finalPayload, // New Column
             event_id: activeEvent?.id || null,
             chat_mode: currentMode,
-            history_is_visible: true
+            history_is_visible: true,
+            persona_id: personaId
         }
 
         const { data, error } = await client.from('messages').insert(insertPayload).select().single()
@@ -287,6 +297,8 @@ Input message to rewrite:
 
         // Async Updates
         try {
+            if (personaId) await incrementStats(event, personaId, fingerprintKey)
+
             const serviceClient = serverSupabaseServiceRole(event)
             if (serviceClient) await serviceClient.from('users').update({ last_seen_at: new Date().toISOString() }).eq('id', userId)
 

@@ -76,13 +76,15 @@ export default defineEventHandler(async (event) => {
 
     if (!messages || messages.length === 0) return []
 
-    // 3. User Mapping (Manual Join fallback)
+    // 4. User & Persona Mapping
     const userIds = [...new Set(messages.map((m: any) => {
-        // Collect normal user_id AND original_user_id from payload if present
         return [m.user_id, m.payload?.original_user_id].filter(Boolean)
     }).flat())]
 
+    const personaIds = [...new Set(messages.map((m: any) => m.persona_id).filter(Boolean))]
+
     let userMap: Record<number, { name: string, isAdmin: boolean }> = {}
+    let personaMap: Record<string, { name: string }> = {}
 
     if (userIds.length > 0) {
         const { data: usersData } = await client
@@ -94,6 +96,21 @@ export default defineEventHandler(async (event) => {
             usersData.forEach((u: any) => {
                 userMap[u.id] = { name: u.name, isAdmin: u.is_admin }
             })
+        }
+    }
+
+    if (personaIds.length > 0) {
+        console.log(`[Messages GET] Fetching ${personaIds.length} personas`)
+        const { data: personaData } = await client
+            .from('personas')
+            .select('persona_id, display_name')
+            .in('persona_id', personaIds)
+
+        if (personaData) {
+            personaData.forEach((p: any) => {
+                personaMap[p.persona_id] = { name: p.display_name }
+            })
+            console.log(`[Messages GET] Mapped ${Object.keys(personaMap).length} personas`)
         }
     }
 
@@ -118,6 +135,8 @@ export default defineEventHandler(async (event) => {
             senderName = `Ai Rewrite for ${originalUser}`
         } else if (msg.type === 'system') {
             senderName = 'System'
+        } else if (msg.persona_id && personaMap[msg.persona_id]) {
+            senderName = personaMap[msg.persona_id].name
         } else {
             senderName = userMap[msg.user_id]?.name || 'Unknown'
         }
@@ -132,6 +151,7 @@ export default defineEventHandler(async (event) => {
             payload: msg.payload,
             created_at: msg.created_at,
             chat_mode: msg.chat_mode,
+            persona_id: msg.persona_id,
             reactions: processReactions(msg.id, reactionsData, sessionId)
         }
     })

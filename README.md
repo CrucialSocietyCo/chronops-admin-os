@@ -51,4 +51,24 @@ The system tracks the following signals for timeline stability:
 ---
 *For technical support, contact the Department of Internal Affairs or open a secure channel (Issue).*
 
+
+## 🔐 Identity Model (Profile Cards v1)
+
+This project uses a dual-layer identity system:
+
+### 1. Actor ID (Private)
+- Derived from browser fingerprint, IP hash, and session tokens.
+- **Permanent Continuity**: Used for moderation (bans/mutes), rate limiting, and backend analytics.
+- **Invisible**: Never exposed to the public API or frontend.
+
+### 2. Persona ID (Public)
+- Represents a specific "Username Instance".
+- **Ephemeral**: Created when a user sets a username.
+- **Resets**: If a user renames themselves, they get a **new Persona ID**.
+  - Public stats (message count, joined date, activity tier) **RESET** to zero.
+  - This preserves the "Social Reset" mechanic while keeping Bad Actors banned.
+
+### Why Reset Stats?
+To encourage users to stick to a customized identity while allowing them to "start over" socially if they wish. However, safety mechanisms (bans) always track the underlying **Actor ID**.
+
 **END TRANSMISSION**
