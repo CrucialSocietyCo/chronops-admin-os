@@ -47,7 +47,8 @@ const handleClose = () => {
   @include retro-window;
   background-color: $bg-color;
   width: 100%;
-  height: 100%;
+  width: 100%;
+  /* height: 100% removed to allow varying heights for masonry/grid */
   transition: all 0.3s ease-in-out;
   transform-origin: center;
 

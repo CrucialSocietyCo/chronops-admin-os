@@ -222,21 +222,22 @@ onMounted(() => {
 }
 
 .masonry-grid {
-  column-count: 3;
-  column-gap: 20px;
+  column-count: 4; /* Default to 4 for wide screens (Pinterest style) */
+  column-gap: 15px; /* Tighter gap */
   width: 100%;
-
-  @media (min-width: 1400px) {
-    column-count: 4;
+  
+  /* Large Laptops */
+  @media (max-width: 1600px) {
+    column-count: 3;
   }
   
-  /* Trigger 2 columns much earlier (tablets/small laptops) */
-  @media (max-width: 1000px) {
+  /* Laptops / Tablets Landscape */
+  @media (max-width: 1200px) {
     column-count: 2;
   }
 
-  /* Only drop to 1 column on actual mobile phones */
-  @media (max-width: 600px) {
+  /* Mobile */
+  @media (max-width: 768px) {
     column-count: 1;
   }
 }
@@ -246,7 +247,7 @@ onMounted(() => {
   page-break-inside: avoid;
   display: block; /* Ensure block formatting */
   width: 100%;
-  margin-bottom: 20px;
+  margin-bottom: 15px; /* Tighter vertical spacing */
   
   /* Ensure WindowFrame doesn't stretch infinitely if it has height:100% */
   height: auto !important; 
