@@ -58,13 +58,25 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 400, message: 'Missing required fields' })
     }
 
+    // Sanitize Dates (Handle empty strings from HTML inputs)
+    const validStart = (start_time && start_time !== '') ? start_time : null
+    const validEnd = (end_time && end_time !== '') ? end_time : null
+
+    // Sanitize Content (Ensure JSON Object)
+    let validContent = content
+    if (typeof content === 'string') {
+        // If it's a raw string, wrap it based on common usage
+        // PinnedBar expects .text for most types
+        validContent = { text: content }
+    }
+
     const { data, error } = await client.from('pinned_items').insert({
         type,
-        content,
+        content: validContent,
         is_active: is_active ?? true,
         order_index: order_index ?? 0,
-        start_time,
-        end_time
+        start_time: validStart,
+        end_time: validEnd
     }).select().single()
 
     if (error) {
