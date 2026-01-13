@@ -1,83 +1,98 @@
-# ChronOps Admin OS
+# Society on South Main — Admin & Moderation Platform (ChronOps)
 
-ChronOps Admin OS is an AI-assisted administrative and moderation platform designed to support operational visibility, content governance, and workflow control for community-driven web applications.
+ChronOps is the administrative and moderation system that powers Society on South Main, a public-facing, community-driven web application.
 
-The project focuses on building clear, usable control surfaces for non-technical users while maintaining scalable front-end architecture and human-in-the-loop oversight of automated systems.
+Together, these systems demonstrate an end-to-end approach to UX engineering:
+public interaction surfaces paired with internal control, governance, and operational tooling, built using AI-assisted development workflows with human-led oversight.
+
+## Platform Overview
+
+Society on South Main is a public, real-time chat platform designed for community interaction and shared conversation.
+
+ChronOps serves as its internal operating system, providing:
+
+- Moderation tools
+- Administrative control surfaces
+- Workflow visibility
+- UX patterns for high-responsibility actions
+
+The two systems were designed in parallel to ensure that user experience, safety, and operational clarity evolve together.
 
 ## Purpose
 
-ChronOps Admin OS was created to solve a common gap in modern web platforms:
-public-facing UX evolves quickly, but internal admin and moderation tools lag behind.
+This project was created to explore how modern web platforms can:
 
-This project explores how thoughtful UX engineering, paired with AI-assisted development, can accelerate the creation of internal tools without sacrificing usability, safety, or system clarity.
+- Rapidly prototype and ship user-facing experiences
+- Maintain trust, safety, and governance at scale
+- Use AI-assisted development responsibly without surrendering UX or architectural control
 
-## Key Features
+ChronOps exists to prevent admin tooling from becoming an afterthought.
+
+## Key Capabilities
+
+### Moderation & Review Interfaces
+Clear workflows for reviewing content, making moderation decisions, and managing escalation paths.
 
 ### Administrative Control Surfaces
-Interfaces designed to manage content, users, and system states with clarity and minimal cognitive load.
+UI patterns that support system oversight, configuration, and operational decision-making.
 
-### Moderation & Review Workflows
-UX patterns that support content review, decision-making, and escalation while prioritizing transparency and consistency.
-
-### Role-Based Access Concepts
-UI structures that support permission-aware workflows and operational boundaries.
+### Role-Aware UX Concepts
+Interfaces designed around permission boundaries and responsibility levels.
 
 ### Scalable UX Architecture
-Component-driven layouts and interaction patterns intended to scale as system complexity grows.
+Component-driven UI structures intended to grow alongside platform complexity.
 
 ## AI-Assisted Development Approach
 
-ChronOps Admin OS was built using AI-assisted development workflows to accelerate implementation and iteration.
+Development leveraged AI-assisted tools to accelerate implementation, refactoring, and iteration.
 
-AI tools were used to:
+AI was used to:
 
-- Assist with code generation, refactoring, and debugging
-- Speed up repetitive implementation tasks
+- Assist with code generation and debugging
 - Explore alternate UI and architectural approaches
+- Reduce time spent on repetitive implementation tasks
 
-All architectural decisions, UX structure, interaction patterns, and system constraints were human-directed.
-AI output was treated as a collaborator, not an authority.
+All UX structure, interaction patterns, system constraints, and moderation logic were human-directed.
 
-This project emphasizes human-in-the-loop judgment, ensuring AI-generated code aligns with:
+This project emphasizes human-in-the-loop AI collaboration, ensuring AI output aligns with:
 
 - UX intent
-- Accessibility considerations
-- Maintainability standards
-- Real-world operational use cases
+- Accessibility standards
+- Maintainability and safety requirements
+- Real-world operational use
 
 ## UX Engineering Focus
 
-The primary design goals of ChronOps Admin OS include:
+The project prioritizes:
 
-- Reducing complexity in administrative workflows
-- Designing interfaces that support decision-making under ambiguity
-- Creating predictable interaction patterns for high-responsibility actions
-- Balancing speed, clarity, and safety in internal tools
+- Translating visual intent into production-ready UX systems
+- Designing interfaces that support judgment under uncertainty
+- Reducing cognitive load for moderators and administrators
+- Aligning public UX decisions with internal operational realities
 
-This project treats admin UX as a first-class product, not an afterthought.
+Admin UX is treated as a first-class product surface, not a secondary tool.
 
-## Tech Overview
+## Tech Orientation
 
 - Front-end focused architecture
-- Component-based UI patterns
-- Admin-oriented interaction models
-- AI-assisted development tooling (human-directed)
+- Component-based UI systems
+- Real-time interaction models
+- AI-assisted development (human-led)
 
-Specific implementation details may evolve as the project continues.
+## Live Platform
 
-## Relationship to Other Projects
-
-ChronOps Admin OS complements public-facing platforms such as Society on South Main by providing the operational and moderation tooling required to support healthy, scalable communities.
+- **Public Web App**: [https://southmain.app](https://southmain.app)
+- **Admin & Moderation Layer**: ChronOps (this repository)
 
 ## Status
 
-This project is actively evolving and serves as:
+Active, evolving platform serving as:
 
-- A production-oriented side project
-- A UX engineering case study
-- A demonstration of responsible, human-led AI-assisted development
+- A production-grade side project
+- A GenAI UX engineering case study
+- A demonstration of responsible AI-assisted product development
 
 ## Author
 
 **Bobby L. Perkins Jr.**  
-Senior Front End UX Engineer / GenAI UX Developer
+GenAI UX Developer (Senior Front End UX Engineer)
