@@ -95,6 +95,53 @@ body {
     --retro-chart-bar: #6d2a74;
 }
 
+body.theme-dragon-fire-cult,
+.color-theme-dragon-fire-cult {
+    --dragon-soot: #080605;
+    --dragon-charcoal: #11100f;
+    --dragon-iron: #221c19;
+    --dragon-blood: #8f1515;
+    --dragon-blood-dark: #4e0808;
+    --dragon-ember: #e6541a;
+    --dragon-flame: #ff8a22;
+    --dragon-gold: #d8a441;
+    --dragon-ash: #9a8b7a;
+    --dragon-bone: #efe1bd;
+    --dragon-parchment: #2b2117;
+    --dragon-success: #74b56f;
+    --dragon-warning: #f0b94c;
+    --dragon-danger: #ff4b2e;
+    --dragon-focus: #ffd27a;
+    --dragon-radius-sm: 2px;
+    --dragon-radius-md: 5px;
+    --dragon-motion-fast: 140ms;
+    --dragon-motion-med: 220ms;
+    --dragon-smoke-texture: radial-gradient(circle at 18% 12%, rgba(255, 118, 38, 0.12), transparent 30%), radial-gradient(circle at 82% 18%, rgba(143, 21, 21, 0.18), transparent 28%), linear-gradient(135deg, rgba(255, 255, 255, 0.035), transparent 32%);
+    --dragon-ember-texture: radial-gradient(circle at 20% 80%, rgba(230, 84, 26, 0.16), transparent 22%), radial-gradient(circle at 76% 74%, rgba(255, 138, 34, 0.11), transparent 18%);
+    --dragon-cracked-texture: linear-gradient(122deg, transparent 0 47%, rgba(239, 225, 189, 0.06) 48%, transparent 50% 100%);
+    --dragon-parchment-texture: linear-gradient(135deg, rgba(239, 225, 189, 0.08), transparent 35%), radial-gradient(circle at 50% 0%, rgba(216, 164, 65, 0.08), transparent 34%);
+    --dragon-scale-texture: radial-gradient(circle at 12px 12px, rgba(216, 164, 65, 0.07) 0 2px, transparent 3px);
+    --retro-desktop-bg: #080605;
+    --retro-surface: #1a1411;
+    --retro-surface-alt: #241814;
+    --retro-text: #efe1bd;
+    --retro-muted-text: #b29a7d;
+    --retro-disabled-text: #75675b;
+    --retro-input-bg: #120d0b;
+    --retro-active-bg: #8f1515;
+    --retro-active-text: #fff1cd;
+    --retro-title-bg: linear-gradient(90deg, #4e0808, #8f1515 45%, #e6541a);
+    --retro-title-text: #fff1cd;
+    --retro-chart-bg: #120d0b;
+    --retro-chart-bar: #e6541a;
+    --retro-shadow-outset: inset 0 0 0 1px #050302, inset 2px 2px rgba(255, 210, 122, 0.28), inset -2px -2px rgba(78, 8, 8, 0.92), 0 0 0 1px rgba(216, 164, 65, 0.22), 0 8px 18px rgba(0, 0, 0, 0.38);
+    --retro-shadow-inset: inset 0 0 0 1px #050302, inset 2px 2px rgba(0, 0, 0, 0.72), inset -2px -2px rgba(255, 210, 122, 0.18);
+    --retro-frame-border: 1px solid rgba(216, 164, 65, 0.35);
+    --retro-frame-radius: var(--dragon-radius-md);
+}
+
+/* Dragon Fire Cult component overrides are in themes/dragon-fire-cult.css */
+
 :root,
 .border-style-system95 {
     --retro-shadow-outset: inset -1px -1px #0a0a0a, inset 1px 1px #ffffff, inset -2px -2px #808080, inset 2px 2px #dfdfdf;

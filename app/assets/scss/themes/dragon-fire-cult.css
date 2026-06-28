@@ -1,0 +1,1190 @@
+/**
+ * ═══════════════════════════════════════════════════════════════════
+ *  DRAGON FIRE CULT — Full-App CSS Theme
+ *  Single source of truth for all Dragon Fire Cult component styling.
+ *  CSS custom properties (tokens) live in main.scss.
+ *  This file owns ALL body.theme-dragon-fire-cult component overrides.
+ *
+ *  Do NOT add Dragon Fire Cult selectors to main.scss.
+ *  This file loads AFTER main.scss via nuxt.config.ts css array.
+ * ═══════════════════════════════════════════════════════════════════
+ */
+
+/* ──────────────────────────────────────────────
+   §1  BODY & APP BACKGROUND
+   Deep soot-black with smoke and ember gradients
+   ────────────────────────────────────────────── */
+
+body.theme-dragon-fire-cult {
+    background:
+        var(--theme-smoke-texture, var(--dragon-smoke-texture)),
+        var(--theme-ember-texture, var(--dragon-ember-texture)),
+        linear-gradient(180deg, #080605 0%, #160b09 48%, #050302 100%);
+    background-attachment: fixed;
+    color: var(--retro-text);
+}
+
+/* ──────────────────────────────────────────────
+   §2  ADMIN LAYOUT — Sidebar, Address Bar, Taskbar
+   War-room command chamber
+   ────────────────────────────────────────────── */
+
+body.theme-dragon-fire-cult .admin-desktop {
+    background:
+        var(--theme-smoke-texture, var(--dragon-smoke-texture)),
+        var(--theme-cracked-stone-texture, var(--dragon-cracked-texture)),
+        radial-gradient(circle at 50% 100%, rgba(230, 84, 26, 0.16), transparent 40%),
+        var(--retro-desktop-bg);
+    color: var(--retro-text);
+}
+
+/* Address bar — scorched iron strip */
+body.theme-dragon-fire-cult .address-bar {
+    background:
+        var(--dragon-parchment-texture),
+        linear-gradient(180deg, rgba(36, 24, 20, 0.96), rgba(18, 13, 11, 0.98));
+    border-bottom: 1px solid rgba(216, 164, 65, 0.25);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.6);
+    color: var(--retro-text);
+}
+
+body.theme-dragon-fire-cult .address-bar .address-label {
+    color: var(--dragon-ash);
+}
+
+body.theme-dragon-fire-cult .address-bar .address-input {
+    background:
+        var(--dragon-cracked-texture),
+        var(--retro-input-bg);
+    box-shadow: var(--retro-shadow-inset);
+    color: var(--retro-text);
+}
+
+body.theme-dragon-fire-cult .address-bar .crumb-link {
+    color: var(--dragon-bone);
+}
+
+body.theme-dragon-fire-cult .address-bar .crumb-link:hover {
+    background-color: var(--dragon-blood);
+    color: var(--retro-active-text);
+}
+
+body.theme-dragon-fire-cult .address-bar .separator {
+    color: var(--dragon-ash);
+}
+
+/* Sidebar navigation */
+body.theme-dragon-fire-cult .sidebar {
+    color: var(--retro-text);
+}
+
+body.theme-dragon-fire-cult .nav-item {
+    color: var(--dragon-bone);
+    border-color: transparent;
+}
+
+body.theme-dragon-fire-cult .nav-item:hover {
+    background-color: var(--dragon-blood);
+    color: var(--retro-active-text);
+}
+
+body.theme-dragon-fire-cult .nav-item.active {
+    background-color: var(--dragon-blood);
+    color: var(--retro-active-text);
+}
+
+body.theme-dragon-fire-cult .quick-actions {
+    border-top-color: rgba(216, 164, 65, 0.22);
+}
+
+body.theme-dragon-fire-cult .action-label {
+    color: var(--dragon-ash);
+}
+
+/* Start menu bar / taskbar — blackened iron plaque */
+body.theme-dragon-fire-cult .start-menu-bar {
+    background:
+        var(--dragon-parchment-texture),
+        linear-gradient(180deg, rgba(36, 24, 20, 0.96), rgba(18, 13, 11, 0.98));
+    border-top: 1px solid rgba(216, 164, 65, 0.28);
+    color: var(--retro-text);
+    box-shadow: var(--retro-shadow-outset);
+}
+
+body.theme-dragon-fire-cult .start-menu-bar .start-button {
+    color: var(--dragon-bone);
+}
+
+body.theme-dragon-fire-cult .start-menu-bar .logout-button {
+    color: var(--dragon-bone);
+}
+
+body.theme-dragon-fire-cult .start-menu-bar .clock {
+    color: var(--dragon-gold);
+    background:
+        var(--dragon-cracked-texture),
+        var(--retro-input-bg);
+    box-shadow: var(--retro-shadow-inset);
+}
+
+/* Mobile sidebar overlay */
+body.theme-dragon-fire-cult .sidebar-backdrop.visible {
+    background: rgba(8, 6, 5, 0.75);
+}
+
+body.theme-dragon-fire-cult .mobile-menu-toggle {
+    background:
+        var(--dragon-parchment-texture),
+        var(--retro-surface);
+    color: var(--dragon-bone);
+    box-shadow: var(--retro-shadow-outset);
+    border: var(--retro-frame-border);
+}
+
+body.theme-dragon-fire-cult .mobile-close-btn {
+    background: var(--dragon-blood);
+    color: var(--dragon-bone);
+    border-color: rgba(216, 164, 65, 0.4);
+}
+
+/* Active/inactive quick action states */
+body.theme-dragon-fire-cult .active-state {
+    background: linear-gradient(180deg, rgba(116, 181, 111, 0.25), rgba(116, 181, 111, 0.12)) !important;
+    border-color: rgba(116, 181, 111, 0.5) !important;
+    color: var(--dragon-success) !important;
+}
+
+body.theme-dragon-fire-cult .inactive-state {
+    background: linear-gradient(180deg, rgba(143, 21, 21, 0.25), rgba(143, 21, 21, 0.12)) !important;
+    color: var(--dragon-danger) !important;
+}
+
+/* ──────────────────────────────────────────────
+   §3  WINDOW FRAMES & TITLE BARS
+   Blackened iron frames, oxblood/ember title bars
+   ────────────────────────────────────────────── */
+
+body.theme-dragon-fire-cult .window-frame,
+body.theme-dragon-fire-cult .stat-card,
+body.theme-dragon-fire-cult .card {
+    background:
+        var(--dragon-parchment-texture),
+        linear-gradient(180deg, rgba(36, 24, 20, 0.96), rgba(18, 13, 11, 0.98));
+    border-color: rgba(216, 164, 65, 0.35);
+    color: var(--retro-text);
+}
+
+body.theme-dragon-fire-cult .title-bar {
+    background:
+        linear-gradient(90deg, rgba(8, 6, 5, 0.72), transparent 32%),
+        var(--retro-title-bg);
+    color: var(--retro-title-text);
+    text-shadow: 0 1px 0 #000, 0 0 8px rgba(255, 138, 34, 0.35);
+}
+
+body.theme-dragon-fire-cult .title-bar-text {
+    color: var(--retro-title-text);
+}
+
+body.theme-dragon-fire-cult .title-bar-controls button {
+    background: var(--retro-surface);
+    color: var(--dragon-bone);
+    border-color: rgba(216, 164, 65, 0.3);
+}
+
+/* ──────────────────────────────────────────────
+   §4  INPUTS, SELECTS, TEXTAREAS
+   Dark parchment / charred iron
+   ────────────────────────────────────────────── */
+
+body.theme-dragon-fire-cult input,
+body.theme-dragon-fire-cult textarea,
+body.theme-dragon-fire-cult select,
+body.theme-dragon-fire-cult .retro-select,
+body.theme-dragon-fire-cult .retro-input,
+body.theme-dragon-fire-cult .retro-textarea,
+body.theme-dragon-fire-cult .font-select,
+body.theme-dragon-fire-cult .gif-search,
+body.theme-dragon-fire-cult .username-input {
+    background:
+        var(--dragon-cracked-texture),
+        var(--retro-input-bg);
+    color: var(--retro-text);
+    border: 1px solid rgba(216, 164, 65, 0.26);
+    box-shadow: var(--retro-shadow-inset);
+    caret-color: var(--dragon-flame);
+}
+
+body.theme-dragon-fire-cult input::placeholder,
+body.theme-dragon-fire-cult textarea::placeholder {
+    color: var(--dragon-ash);
+    opacity: 0.7;
+}
+
+/* Checkboxes & radios */
+body.theme-dragon-fire-cult input[type="checkbox"],
+body.theme-dragon-fire-cult input[type="radio"] {
+    accent-color: var(--dragon-ember);
+}
+
+body.theme-dragon-fire-cult .checkbox-group label,
+body.theme-dragon-fire-cult .radio-group label,
+body.theme-dragon-fire-cult .radio-option label {
+    color: var(--dragon-bone);
+}
+
+body.theme-dragon-fire-cult .form-group label {
+    color: var(--dragon-ash);
+}
+
+/* ──────────────────────────────────────────────
+   §5  FOCUS STATES
+   Accessible ember-gold glow
+   ────────────────────────────────────────────── */
+
+body.theme-dragon-fire-cult input:focus,
+body.theme-dragon-fire-cult textarea:focus,
+body.theme-dragon-fire-cult select:focus,
+body.theme-dragon-fire-cult .retro-select:focus,
+body.theme-dragon-fire-cult button:focus-visible,
+body.theme-dragon-fire-cult a:focus-visible,
+body.theme-dragon-fire-cult .retro-btn:focus {
+    outline: 2px solid var(--dragon-focus);
+    outline-offset: 2px;
+    box-shadow: var(--retro-shadow-inset), 0 0 0 3px rgba(230, 84, 26, 0.25);
+}
+
+/* ──────────────────────────────────────────────
+   §6  BUTTONS
+   Metal plaques, wax seals, fire-lit tabs
+   ────────────────────────────────────────────── */
+
+body.theme-dragon-fire-cult button,
+body.theme-dragon-fire-cult .retro-button,
+body.theme-dragon-fire-cult .btn-primary,
+body.theme-dragon-fire-cult .btn-icon,
+body.theme-dragon-fire-cult .retro-btn,
+body.theme-dragon-fire-cult .enter-button,
+body.theme-dragon-fire-cult .send-btn,
+body.theme-dragon-fire-cult .format-buttons button,
+body.theme-dragon-fire-cult .load-more-btn {
+    background:
+        linear-gradient(180deg, rgba(255, 210, 122, 0.14), rgba(78, 8, 8, 0.18)),
+        var(--retro-surface);
+    color: var(--retro-text);
+    border-color: rgba(216, 164, 65, 0.34);
+    text-shadow: 0 1px 0 #000;
+    transition: transform var(--dragon-motion-fast, 140ms) ease,
+                box-shadow var(--dragon-motion-fast, 140ms) ease,
+                color var(--dragon-motion-fast, 140ms) ease;
+}
+
+body.theme-dragon-fire-cult button:hover,
+body.theme-dragon-fire-cult .retro-button:hover,
+body.theme-dragon-fire-cult .btn-primary:hover,
+body.theme-dragon-fire-cult .retro-btn:hover,
+body.theme-dragon-fire-cult .enter-button:hover,
+body.theme-dragon-fire-cult .send-btn:hover {
+    color: #fff1cd;
+    box-shadow: var(--retro-shadow-outset), 0 0 18px rgba(230, 84, 26, 0.24);
+}
+
+body.theme-dragon-fire-cult button:active,
+body.theme-dragon-fire-cult .retro-button:active,
+body.theme-dragon-fire-cult .btn-primary:active,
+body.theme-dragon-fire-cult .retro-btn:active,
+body.theme-dragon-fire-cult .enter-button:active,
+body.theme-dragon-fire-cult .send-btn:active {
+    transform: translateY(1px);
+    box-shadow: var(--retro-shadow-inset);
+}
+
+body.theme-dragon-fire-cult button:disabled,
+body.theme-dragon-fire-cult .disabled,
+body.theme-dragon-fire-cult [aria-disabled='true'] {
+    color: var(--retro-disabled-text);
+    opacity: 0.68;
+    box-shadow: none;
+    cursor: not-allowed;
+    text-shadow: none;
+}
+
+/* Destructive / danger — fire & blood */
+body.theme-dragon-fire-cult .destructive,
+body.theme-dragon-fire-cult .danger,
+body.theme-dragon-fire-cult .delete,
+body.theme-dragon-fire-cult .btn-danger,
+body.theme-dragon-fire-cult .danger-button {
+    background: linear-gradient(180deg, #6f0e0e, #2b0605) !important;
+    color: #ffe2cf !important;
+    border-color: rgba(255, 75, 46, 0.55) !important;
+    text-shadow: 0 1px 0 rgba(0,0,0,0.5);
+}
+
+body.theme-dragon-fire-cult .destructive:hover,
+body.theme-dragon-fire-cult .btn-danger:hover,
+body.theme-dragon-fire-cult .danger-button:hover {
+    box-shadow: 0 0 22px rgba(255, 75, 46, 0.35), var(--retro-shadow-outset);
+}
+
+/* ──────────────────────────────────────────────
+   §7  STATUS STATES
+   Themed but clear
+   ────────────────────────────────────────────── */
+
+body.theme-dragon-fire-cult .success,
+body.theme-dragon-fire-cult .status-success {
+    color: var(--dragon-success);
+}
+
+body.theme-dragon-fire-cult .warning,
+body.theme-dragon-fire-cult .status-warning {
+    color: var(--dragon-warning);
+}
+
+body.theme-dragon-fire-cult .error,
+body.theme-dragon-fire-cult .status-danger {
+    color: var(--dragon-danger);
+}
+
+body.theme-dragon-fire-cult .status-message.success {
+    color: var(--dragon-success);
+}
+
+body.theme-dragon-fire-cult .status-message.error {
+    color: var(--dragon-danger);
+}
+
+/* Info state — ember gold */
+body.theme-dragon-fire-cult .info,
+body.theme-dragon-fire-cult .status-info {
+    color: var(--dragon-gold);
+}
+
+/* ──────────────────────────────────────────────
+   §8  TABLES — War Table
+   ────────────────────────────────────────────── */
+
+body.theme-dragon-fire-cult table {
+    background: rgba(18, 13, 11, 0.92);
+    color: var(--retro-text);
+    border-collapse: collapse;
+}
+
+body.theme-dragon-fire-cult th {
+    background: linear-gradient(180deg, rgba(143, 21, 21, 0.78), rgba(78, 8, 8, 0.92));
+    color: #fff1cd;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
+    border-bottom: 2px solid rgba(216, 164, 65, 0.35);
+}
+
+body.theme-dragon-fire-cult td,
+body.theme-dragon-fire-cult th {
+    border-color: rgba(216, 164, 65, 0.22);
+    padding: 8px 10px;
+}
+
+body.theme-dragon-fire-cult tr:nth-child(even) {
+    background: rgba(43, 33, 23, 0.3);
+}
+
+body.theme-dragon-fire-cult tr:hover,
+body.theme-dragon-fire-cult .selected,
+body.theme-dragon-fire-cult [aria-selected='true'] {
+    background: rgba(230, 84, 26, 0.14);
+}
+
+/* ──────────────────────────────────────────────
+   §9  BADGES — Wax Seal
+   ────────────────────────────────────────────── */
+
+body.theme-dragon-fire-cult .badge,
+body.theme-dragon-fire-cult .type-badge,
+body.theme-dragon-fire-cult .status-badge {
+    background: linear-gradient(180deg, #8f1515, #4e0808);
+    color: #fff1cd;
+    border: 1px solid rgba(216, 164, 65, 0.45);
+    border-radius: var(--dragon-radius-sm, 2px);
+    box-shadow: 0 0 12px rgba(230, 84, 26, 0.18);
+    text-shadow: 0 1px 0 rgba(0,0,0,0.4);
+}
+
+/* ──────────────────────────────────────────────
+   §10  PINNED MESSAGES — Royal Decrees
+   ────────────────────────────────────────────── */
+
+body.theme-dragon-fire-cult .pinned,
+body.theme-dragon-fire-cult .pinned-message,
+body.theme-dragon-fire-cult .pinned-bar-container {
+    background:
+        var(--dragon-parchment-texture),
+        linear-gradient(180deg, rgba(78, 8, 8, 0.72), rgba(36, 24, 20, 0.94));
+    border: 1px solid rgba(216, 164, 65, 0.52);
+    box-shadow: 0 0 22px rgba(230, 84, 26, 0.16);
+    color: var(--dragon-bone);
+}
+
+body.theme-dragon-fire-cult .pinned-strip {
+    background:
+        var(--dragon-parchment-texture),
+        linear-gradient(180deg, rgba(78, 8, 8, 0.55), rgba(36, 24, 20, 0.88));
+    border: 1px solid rgba(216, 164, 65, 0.4);
+    color: var(--dragon-bone);
+}
+
+body.theme-dragon-fire-cult .pinned-strip .label {
+    color: var(--dragon-gold);
+}
+
+body.theme-dragon-fire-cult .pinned-strip .text-scroller {
+    color: var(--dragon-bone);
+}
+
+body.theme-dragon-fire-cult .pinned-strip .text-scroller a {
+    color: var(--dragon-flame);
+}
+
+body.theme-dragon-fire-cult .pinned-strip .indicator {
+    color: var(--dragon-ash);
+}
+
+/* ──────────────────────────────────────────────
+   §11  DASHBOARD
+   War-table command chamber
+   ────────────────────────────────────────────── */
+
+body.theme-dragon-fire-cult .stat-value {
+    color: var(--dragon-bone);
+}
+
+body.theme-dragon-fire-cult .stat-value.ok {
+    color: var(--dragon-success);
+}
+
+body.theme-dragon-fire-cult .stat-value.warning {
+    color: var(--dragon-warning);
+}
+
+body.theme-dragon-fire-cult .stat-label {
+    color: var(--dragon-ash);
+}
+
+body.theme-dragon-fire-cult .activity-item {
+    border-bottom-color: rgba(216, 164, 65, 0.15);
+}
+
+body.theme-dragon-fire-cult .activity-item .time {
+    color: var(--dragon-ash);
+}
+
+body.theme-dragon-fire-cult .activity-item .user {
+    color: var(--dragon-ember);
+}
+
+body.theme-dragon-fire-cult .empty-state {
+    color: var(--dragon-ash);
+}
+
+body.theme-dragon-fire-cult .mode-status.visible {
+    color: var(--dragon-ember);
+}
+
+/* Charts — ember bars on soot background */
+body.theme-dragon-fire-cult .mock-chart {
+    background: var(--retro-chart-bg);
+    border-color: rgba(216, 164, 65, 0.22);
+}
+
+body.theme-dragon-fire-cult .mock-chart .bar {
+    background: linear-gradient(180deg, var(--dragon-ember), var(--dragon-blood));
+    border-color: rgba(216, 164, 65, 0.3);
+    box-shadow: 0 0 8px rgba(230, 84, 26, 0.2);
+}
+
+/* ──────────────────────────────────────────────
+   §12  ANALYTICS PAGE
+   ────────────────────────────────────────────── */
+
+body.theme-dragon-fire-cult .page-title {
+    color: var(--dragon-bone);
+    text-shadow: 2px 2px #000, 0 0 12px rgba(230, 84, 26, 0.25);
+}
+
+body.theme-dragon-fire-cult .kpi-value {
+    color: var(--dragon-bone);
+}
+
+body.theme-dragon-fire-cult .kpi-value.highlight {
+    color: var(--dragon-ember);
+}
+
+body.theme-dragon-fire-cult .kpi-value.warning {
+    color: var(--dragon-warning);
+}
+
+body.theme-dragon-fire-cult .kpi-value.error-text {
+    color: var(--dragon-danger);
+}
+
+body.theme-dragon-fire-cult .kpi-label {
+    color: var(--dragon-ash);
+}
+
+body.theme-dragon-fire-cult .kpi-value .unit {
+    color: var(--dragon-ash);
+}
+
+body.theme-dragon-fire-cult .grid-item {
+    background:
+        var(--dragon-parchment-texture),
+        linear-gradient(180deg, rgba(36, 24, 20, 0.96), rgba(18, 13, 11, 0.98));
+}
+
+body.theme-dragon-fire-cult .error-border {
+    border: 2px solid var(--dragon-danger) !important;
+    box-shadow: 0 0 12px rgba(255, 75, 46, 0.25);
+}
+
+/* ──────────────────────────────────────────────
+   §13  SYSTEM HEALTH
+   ────────────────────────────────────────────── */
+
+body.theme-dragon-fire-cult .retro-fieldset {
+    border-color: rgba(216, 164, 65, 0.3);
+}
+
+body.theme-dragon-fire-cult .retro-fieldset legend {
+    color: var(--dragon-gold);
+}
+
+body.theme-dragon-fire-cult .stat-row .label {
+    color: var(--dragon-ash);
+}
+
+body.theme-dragon-fire-cult .stat-row .value {
+    color: var(--dragon-bone);
+}
+
+body.theme-dragon-fire-cult .value.ok {
+    color: var(--dragon-success);
+}
+
+body.theme-dragon-fire-cult .value.bad {
+    color: var(--dragon-danger);
+}
+
+body.theme-dragon-fire-cult .progress-bar {
+    background:
+        var(--dragon-cracked-texture),
+        var(--retro-input-bg);
+    box-shadow: var(--retro-shadow-inset);
+}
+
+body.theme-dragon-fire-cult .progress-fill {
+    background: linear-gradient(90deg, var(--dragon-blood), var(--dragon-ember));
+    box-shadow: 0 0 6px rgba(230, 84, 26, 0.3);
+}
+
+/* ──────────────────────────────────────────────
+   §14  MODERATION PAGE
+   ────────────────────────────────────────────── */
+
+body.theme-dragon-fire-cult .moderation-content {
+    background:
+        var(--dragon-parchment-texture),
+        linear-gradient(180deg, rgba(26, 20, 17, 0.98), rgba(18, 13, 11, 0.99));
+    border-color: rgba(216, 164, 65, 0.3);
+    box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+    color: var(--retro-text);
+}
+
+body.theme-dragon-fire-cult .tabs button {
+    background: var(--retro-surface);
+    border-color: rgba(216, 164, 65, 0.25);
+    color: var(--dragon-ash);
+}
+
+body.theme-dragon-fire-cult .tabs button.active {
+    background:
+        var(--dragon-parchment-texture),
+        var(--retro-surface);
+    border-top-color: var(--dragon-ember);
+    border-bottom-color: var(--retro-surface);
+    color: var(--dragon-bone);
+    text-shadow: 0 0 5px rgba(230, 84, 26, 0.4);
+}
+
+/* ──────────────────────────────────────────────
+   §15  SETTINGS & HOUSE CONTROLS PAGES
+   ────────────────────────────────────────────── */
+
+body.theme-dragon-fire-cult .future-section {
+    color: var(--dragon-ash);
+    border-color: rgba(216, 164, 65, 0.2);
+}
+
+body.theme-dragon-fire-cult .subsection-label {
+    color: var(--dragon-gold);
+}
+
+body.theme-dragon-fire-cult .danger-zone {
+    border-top-color: rgba(255, 75, 46, 0.25);
+}
+
+body.theme-dragon-fire-cult .actions-bar {
+    background:
+        var(--dragon-parchment-texture),
+        var(--retro-surface);
+    border-color: rgba(216, 164, 65, 0.3);
+    box-shadow: 0 -1px 0 rgba(216, 164, 65, 0.15);
+}
+
+body.theme-dragon-fire-cult .snapshot-controls .retro-select {
+    background:
+        var(--dragon-cracked-texture),
+        var(--retro-input-bg);
+}
+
+body.theme-dragon-fire-cult .highlight-box {
+    background: rgba(230, 84, 26, 0.08) !important;
+    border: 1px solid rgba(216, 164, 65, 0.2);
+    border-radius: var(--dragon-radius-sm, 2px);
+}
+
+/* ──────────────────────────────────────────────
+   §16  LOGIN PAGE (Admin)
+   ────────────────────────────────────────────── */
+
+body.theme-dragon-fire-cult .login-container {
+    color: var(--retro-text);
+}
+
+body.theme-dragon-fire-cult .login-form .form-group label {
+    color: var(--dragon-ash);
+}
+
+body.theme-dragon-fire-cult .error-message {
+    color: var(--dragon-danger);
+    border-color: rgba(255, 75, 46, 0.4);
+}
+
+body.theme-dragon-fire-cult .success-message {
+    color: var(--dragon-success);
+    border-color: rgba(116, 181, 111, 0.4);
+}
+
+body.theme-dragon-fire-cult .toggle-link {
+    color: var(--dragon-flame);
+}
+
+body.theme-dragon-fire-cult .toggle-link:hover {
+    color: var(--dragon-gold);
+}
+
+/* ──────────────────────────────────────────────
+   §17  CHAT FRONTEND — Chat History
+   Messages readable on dark parchment
+   ────────────────────────────────────────────── */
+
+/* Chat log — scorched parchment scroll */
+body.theme-dragon-fire-cult .chat-history {
+    background:
+        var(--dragon-parchment-texture),
+        var(--dragon-parchment);
+    border-color: rgba(216, 164, 65, 0.3);
+    box-shadow: var(--retro-shadow-inset);
+    color: var(--dragon-bone);
+}
+
+/* Standard message line */
+body.theme-dragon-fire-cult .message-line {
+    color: var(--dragon-bone);
+}
+
+body.theme-dragon-fire-cult .sender {
+    color: var(--dragon-gold);
+}
+
+body.theme-dragon-fire-cult .content {
+    color: var(--dragon-bone);
+}
+
+/* Admin messages — cursed royal decree */
+body.theme-dragon-fire-cult .message-line.admin-line {
+    background: rgba(143, 21, 21, 0.15);
+    border-top: 1px dotted rgba(216, 164, 65, 0.3);
+    border-bottom: 1px dotted rgba(216, 164, 65, 0.3);
+}
+
+body.theme-dragon-fire-cult .sender.admin {
+    color: var(--dragon-ember);
+    text-shadow: 0 0 4px rgba(230, 84, 26, 0.3);
+}
+
+body.theme-dragon-fire-cult .admin-star {
+    color: var(--dragon-gold);
+    text-shadow: 0 0 4px rgba(216, 164, 65, 0.4);
+}
+
+/* System messages — mystic decree */
+body.theme-dragon-fire-cult .message-line.system-line {
+    background: rgba(216, 164, 65, 0.06);
+    border-left: 3px solid var(--dragon-gold);
+}
+
+body.theme-dragon-fire-cult .sender.system {
+    color: var(--dragon-gold);
+}
+
+body.theme-dragon-fire-cult .content.system {
+    color: var(--dragon-ash);
+}
+
+body.theme-dragon-fire-cult .username-click:hover {
+    color: var(--dragon-flame);
+}
+
+/* Add reaction button */
+body.theme-dragon-fire-cult .add-reaction-btn {
+    color: var(--dragon-ash);
+}
+
+body.theme-dragon-fire-cult .add-reaction-btn:hover {
+    color: var(--dragon-bone);
+}
+
+/* Jump to bottom button */
+body.theme-dragon-fire-cult .jump-btn {
+    background: var(--retro-surface);
+    color: var(--dragon-bone);
+    border-color: rgba(216, 164, 65, 0.4);
+    box-shadow: 1px 1px 0px 0px rgba(0, 0, 0, 0.6);
+}
+
+body.theme-dragon-fire-cult .jump-btn:hover {
+    background: var(--retro-surface-alt);
+}
+
+body.theme-dragon-fire-cult .jump-btn.has-new {
+    background: var(--dragon-ember);
+    color: var(--dragon-bone);
+    border-color: var(--dragon-flame);
+    animation: dragon-pulse 1s step-end infinite;
+}
+
+/* ──────────────────────────────────────────────
+   §18  CHAT FRONTEND — Input Area
+   ────────────────────────────────────────────── */
+
+body.theme-dragon-fire-cult .chat-input-area {
+    color: var(--retro-text);
+}
+
+body.theme-dragon-fire-cult .toolbar {
+    background:
+        var(--dragon-parchment-texture),
+        var(--retro-surface);
+    border-bottom-color: rgba(216, 164, 65, 0.2);
+}
+
+body.theme-dragon-fire-cult .input-box {
+    background:
+        var(--dragon-cracked-texture),
+        var(--retro-input-bg);
+    color: var(--dragon-bone);
+    border-color: rgba(216, 164, 65, 0.25);
+    box-shadow: var(--retro-shadow-inset);
+}
+
+body.theme-dragon-fire-cult .input-box:empty:not(:focus):before {
+    color: var(--dragon-ember);
+}
+
+/* GIF & Emoticon pickers */
+body.theme-dragon-fire-cult .gif-picker,
+body.theme-dragon-fire-cult .emoticon-picker {
+    background:
+        var(--dragon-parchment-texture),
+        var(--retro-surface);
+    border-color: rgba(216, 164, 65, 0.35);
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.6);
+}
+
+body.theme-dragon-fire-cult .gif-option:hover,
+body.theme-dragon-fire-cult .emoticon-option:hover {
+    border-color: var(--dragon-gold);
+    background: rgba(216, 164, 65, 0.1);
+}
+
+body.theme-dragon-fire-cult .category-header {
+    background: linear-gradient(90deg, var(--dragon-blood-dark, #4e0808), var(--dragon-blood));
+    color: var(--dragon-bone);
+}
+
+body.theme-dragon-fire-cult .loading-gifs {
+    color: var(--dragon-ash);
+}
+
+/* ──────────────────────────────────────────────
+   §19  CHAT FRONTEND — Sponsored Links
+   No default blue. Fully themed.
+   ────────────────────────────────────────────── */
+
+body.theme-dragon-fire-cult .text-ad-container {
+    background:
+        var(--dragon-parchment-texture),
+        var(--retro-surface);
+    border-color: rgba(216, 164, 65, 0.3);
+    box-shadow: var(--retro-shadow-outset);
+}
+
+body.theme-dragon-fire-cult .text-ad {
+    background: var(--retro-input-bg);
+    border-color: rgba(216, 164, 65, 0.35);
+}
+
+body.theme-dragon-fire-cult .ad-header {
+    background: linear-gradient(90deg, var(--dragon-blood-dark, #4e0808), var(--dragon-blood));
+    color: var(--dragon-gold);
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
+}
+
+body.theme-dragon-fire-cult .ad-body {
+    background:
+        var(--dragon-parchment-texture),
+        var(--dragon-parchment);
+    color: var(--dragon-bone);
+}
+
+body.theme-dragon-fire-cult .ad-body .arrow {
+    color: var(--dragon-ember);
+}
+
+body.theme-dragon-fire-cult .ad-content a {
+    color: var(--dragon-flame);
+}
+
+body.theme-dragon-fire-cult .ad-content a:hover {
+    color: var(--dragon-gold);
+}
+
+/* ──────────────────────────────────────────────
+   §20  CHAT FRONTEND — Login Screen
+   ────────────────────────────────────────────── */
+
+body.theme-dragon-fire-cult .login-screen {
+    color: var(--retro-text);
+}
+
+body.theme-dragon-fire-cult .login-window {
+    background:
+        var(--dragon-parchment-texture),
+        var(--retro-surface);
+    color: var(--dragon-bone);
+    box-shadow: var(--retro-shadow-outset);
+    border: var(--retro-frame-border);
+    border-radius: var(--retro-frame-radius);
+}
+
+body.theme-dragon-fire-cult .login-content .instruction {
+    color: var(--dragon-bone);
+}
+
+body.theme-dragon-fire-cult .login-screen .error-message {
+    color: var(--dragon-danger);
+}
+
+body.theme-dragon-fire-cult .text-danger {
+    color: var(--dragon-danger);
+}
+
+/* ──────────────────────────────────────────────
+   §21  CHAT FRONTEND — Typing & Join Banners
+   ────────────────────────────────────────────── */
+
+body.theme-dragon-fire-cult .typing-row {
+    color: var(--dragon-ash);
+}
+
+body.theme-dragon-fire-cult .join-banner-row {
+    color: var(--dragon-gold);
+}
+
+/* ──────────────────────────────────────────────
+   §22  CHAT FRONTEND — Event Mode Pill
+   ────────────────────────────────────────────── */
+
+body.theme-dragon-fire-cult .event-mode-pill.mode-live {
+    background: rgba(143, 21, 21, 0.35);
+    color: var(--dragon-ember);
+    border-color: var(--dragon-blood);
+}
+
+body.theme-dragon-fire-cult .event-mode-pill.mode-preshow {
+    background: rgba(216, 164, 65, 0.15);
+    color: var(--dragon-gold);
+    border-color: rgba(216, 164, 65, 0.5);
+}
+
+body.theme-dragon-fire-cult .event-mode-pill.mode-afterparty {
+    background: rgba(230, 84, 26, 0.2);
+    color: var(--dragon-flame);
+    border-color: rgba(230, 84, 26, 0.5);
+}
+
+body.theme-dragon-fire-cult .event-mode-pill.mode-quiet {
+    background: rgba(154, 139, 122, 0.15);
+    color: var(--dragon-ash);
+    border-color: rgba(154, 139, 122, 0.4);
+}
+
+/* ──────────────────────────────────────────────
+   §23  CHAT FRONTEND — Voice Drop
+   ────────────────────────────────────────────── */
+
+body.theme-dragon-fire-cult .voice-drop-message {
+    color: var(--dragon-bone);
+}
+
+body.theme-dragon-fire-cult .voice-drop-message .admin-name {
+    color: var(--dragon-ember);
+}
+
+body.theme-dragon-fire-cult .voice-drop-message .label {
+    color: var(--dragon-ash);
+}
+
+body.theme-dragon-fire-cult .voice-drop-message .play-btn {
+    background: linear-gradient(180deg, var(--dragon-blood), var(--dragon-blood-dark, #4e0808));
+    color: var(--dragon-bone);
+    border-color: rgba(216, 164, 65, 0.35);
+}
+
+body.theme-dragon-fire-cult .voice-drop-message .play-btn:hover {
+    box-shadow: 0 0 10px rgba(230, 84, 26, 0.3);
+}
+
+body.theme-dragon-fire-cult .voice-drop-message .duration {
+    color: var(--dragon-ash);
+}
+
+body.theme-dragon-fire-cult .voice-drop-message .pixel-bar {
+    background: var(--dragon-ember);
+}
+
+body.theme-dragon-fire-cult .voice-drop-message .live-badge {
+    background: var(--dragon-danger);
+    color: var(--dragon-bone);
+}
+
+/* ──────────────────────────────────────────────
+   §24  CHAT FRONTEND — Reaction Pills
+   ────────────────────────────────────────────── */
+
+body.theme-dragon-fire-cult .reaction-pills .pill {
+    background: var(--retro-surface);
+    border-color: rgba(216, 164, 65, 0.25);
+    color: var(--dragon-bone);
+}
+
+body.theme-dragon-fire-cult .reaction-pills .pill.active {
+    background: rgba(143, 21, 21, 0.3);
+    border-color: var(--dragon-ember);
+}
+
+body.theme-dragon-fire-cult .reaction-pills .pill .count {
+    color: var(--dragon-ash);
+}
+
+/* ──────────────────────────────────────────────
+   §25  MODALS & TOASTS
+   ────────────────────────────────────────────── */
+
+body.theme-dragon-fire-cult .modal-overlay {
+    background: rgba(8, 6, 5, 0.75);
+}
+
+body.theme-dragon-fire-cult .retro-modal-window {
+    background:
+        var(--dragon-parchment-texture),
+        var(--retro-surface);
+    border-color: rgba(216, 164, 65, 0.4);
+    box-shadow: 2px 2px 20px rgba(0, 0, 0, 0.7), 0 0 30px rgba(230, 84, 26, 0.1);
+    color: var(--dragon-bone);
+}
+
+body.theme-dragon-fire-cult .retro-modal-window .title-bar {
+    background: linear-gradient(90deg, var(--dragon-blood-dark, #4e0808), var(--dragon-blood));
+}
+
+body.theme-dragon-fire-cult .retro-modal-window .title-bar.error-mode {
+    background: linear-gradient(90deg, #2b0605, #6f0e0e);
+}
+
+body.theme-dragon-fire-cult .retro-modal-window .message-section {
+    color: var(--dragon-bone);
+}
+
+body.theme-dragon-fire-cult .retro-modal-window .timer-countdown {
+    color: var(--dragon-ember);
+}
+
+body.theme-dragon-fire-cult .modal-content {
+    color: var(--dragon-bone);
+}
+
+/* ──────────────────────────────────────────────
+   §26  SCROLLBARS
+   Blackened iron scrollbar with ember thumb
+   ────────────────────────────────────────────── */
+
+body.theme-dragon-fire-cult ::-webkit-scrollbar {
+    width: 14px;
+    height: 14px;
+}
+
+body.theme-dragon-fire-cult ::-webkit-scrollbar-track {
+    background: var(--retro-input-bg);
+    border-left: 1px solid rgba(216, 164, 65, 0.15);
+}
+
+body.theme-dragon-fire-cult ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--retro-surface), var(--retro-surface-alt));
+    border: 1px solid rgba(216, 164, 65, 0.3);
+    border-radius: var(--dragon-radius-sm, 2px);
+}
+
+body.theme-dragon-fire-cult ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, var(--retro-surface-alt), var(--retro-surface));
+    border-color: rgba(216, 164, 65, 0.5);
+}
+
+body.theme-dragon-fire-cult ::-webkit-scrollbar-thumb:active {
+    background: var(--dragon-blood);
+}
+
+body.theme-dragon-fire-cult ::-webkit-scrollbar-corner {
+    background: var(--retro-input-bg);
+}
+
+/* Firefox scrollbars */
+body.theme-dragon-fire-cult * {
+    scrollbar-color: var(--retro-surface) var(--retro-input-bg);
+    scrollbar-width: thin;
+}
+
+/* ──────────────────────────────────────────────
+   §27  ANIMATIONS & KEYFRAMES
+   ────────────────────────────────────────────── */
+
+@keyframes dragon-pulse {
+    0%   { box-shadow: 0 0 4px rgba(230, 84, 26, 0.3); }
+    50%  { box-shadow: 0 0 12px rgba(230, 84, 26, 0.6); }
+    100% { box-shadow: 0 0 4px rgba(230, 84, 26, 0.3); }
+}
+
+@keyframes ember-glow {
+    0%   { text-shadow: 0 0 4px rgba(230, 84, 26, 0.2); }
+    50%  { text-shadow: 0 0 10px rgba(255, 138, 34, 0.5); }
+    100% { text-shadow: 0 0 4px rgba(230, 84, 26, 0.2); }
+}
+
+/* Ember border hover for interactive cards */
+body.theme-dragon-fire-cult .stat-card:hover,
+body.theme-dragon-fire-cult .grid-item:hover {
+    box-shadow: 0 0 12px rgba(230, 84, 26, 0.12);
+    transition: box-shadow var(--dragon-motion-med, 220ms) ease;
+}
+
+/* ──────────────────────────────────────────────
+   §28  UNREAD / LOADING / SELECTED STATES
+   ────────────────────────────────────────────── */
+
+body.theme-dragon-fire-cult .unread {
+    border-left: 3px solid var(--dragon-ember);
+}
+
+body.theme-dragon-fire-cult .loading,
+body.theme-dragon-fire-cult .loading-text {
+    color: var(--dragon-ash);
+}
+
+body.theme-dragon-fire-cult .loading-window {
+    background:
+        var(--dragon-parchment-texture),
+        var(--retro-surface);
+}
+
+/* ──────────────────────────────────────────────
+   §29  LINKS
+   ────────────────────────────────────────────── */
+
+body.theme-dragon-fire-cult a {
+    color: var(--dragon-flame);
+}
+
+body.theme-dragon-fire-cult a:hover {
+    color: var(--dragon-gold);
+}
+
+body.theme-dragon-fire-cult a:visited {
+    color: var(--dragon-ash);
+}
+
+/* ──────────────────────────────────────────────
+   §30  CHAT FRONTEND — App-Level Variables
+   For retro-chat-vue's own CSS var system
+   ────────────────────────────────────────────── */
+
+body.theme-dragon-fire-cult {
+    --bg-color: #080605;
+    --window-bg: var(--retro-surface);
+    --text-color: var(--retro-text);
+    --title-bg: var(--retro-title-bg);
+    --title-text: var(--retro-title-text);
+    --input-bg: var(--retro-input-bg);
+    --border-outset: var(--retro-shadow-outset);
+    --border-inset: var(--retro-shadow-inset);
+    --frame-border: var(--retro-frame-border);
+    --frame-radius: var(--retro-frame-radius);
+}
+
+/* ──────────────────────────────────────────────
+   §31  PREFERS-REDUCED-MOTION
+   ────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+    body.theme-dragon-fire-cult *,
+    body.theme-dragon-fire-cult *::before,
+    body.theme-dragon-fire-cult *::after {
+        animation-duration: 1ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 1ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* ──────────────────────────────────────────────
+   §32  MOBILE RESPONSIVE
+   Reduce texture/shadow complexity on small screens
+   ────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+    body.theme-dragon-fire-cult {
+        /* Simplify background on mobile for performance */
+        background:
+            linear-gradient(180deg, #080605 0%, #160b09 48%, #050302 100%);
+        background-attachment: scroll;
+    }
+
+    body.theme-dragon-fire-cult .admin-desktop {
+        background: var(--retro-desktop-bg);
+    }
+
+    body.theme-dragon-fire-cult .sidebar {
+        background:
+            var(--dragon-parchment-texture),
+            var(--retro-surface);
+        box-shadow: 4px 0 10px rgba(0, 0, 0, 0.7);
+    }
+}

@@ -15,7 +15,8 @@ export const colorThemeOptions: AestheticOption[] = [
   { value: 'graphite', label: 'Graphite' },
   { value: 'noir_terminal', label: 'Noir Terminal' },
   { value: 'crt_glow', label: 'CRT Glow' },
-  { value: 'plum', label: 'Plum' }
+  { value: 'plum', label: 'Plum' },
+  { value: 'dragon_fire_cult', label: 'Dragon Fire Cult' }
 ]
 
 export const adminBadgeOptions: AestheticOption[] = [
@@ -60,7 +61,9 @@ export const normalizeColorTheme = (value: unknown) => normalizeFromMap(value, '
   noirterminal: 'noir_terminal',
   crt_glow: 'crt_glow',
   crtglow: 'crt_glow',
-  plum: 'plum'
+  plum: 'plum',
+  dragon_fire_cult: 'dragon_fire_cult',
+  dragonfirecult: 'dragon_fire_cult'
 })
 
 export const normalizeAdminBadge = (value: unknown) => normalizeFromMap(value, 'star_icon', {
@@ -84,3 +87,6 @@ export const borderStyleClassName = (value: unknown) =>
 
 export const colorThemeClassName = (value: unknown) =>
   `color-theme-${normalizeColorTheme(value).replace(/_/g, '-')}`
+
+export const rootThemeClassName = (value: unknown) =>
+  normalizeColorTheme(value) === 'dragon_fire_cult' ? 'theme-dragon-fire-cult' : ''

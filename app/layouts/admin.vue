@@ -1,7 +1,7 @@
 <template>
   <div
     class="admin-desktop"
-    :class="[borderStyleClass, colorThemeClass]"
+    :class="[borderStyleClass, colorThemeClass, rootThemeClass]"
     :data-border-style="currentBorderStyle"
     :data-color-theme="currentTheme"
     :data-admin-badge="currentAdminBadge"
@@ -102,7 +102,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import WindowFrame from '~/components/WindowFrame.vue'
 import RetroButton from '~/components/RetroButton.vue'
@@ -111,7 +111,8 @@ import {
   colorThemeClassName,
   normalizeAdminBadge,
   normalizeBorderStyle,
-  normalizeColorTheme
+  normalizeColorTheme,
+  rootThemeClassName
 } from '~/utils/aesthetics'
 
 const route = useRoute()
@@ -130,6 +131,17 @@ const currentBorderStyle = useState('adminBorderStyle', () => 'system95')
 const currentAdminBadge = useState('adminBadge', () => 'star_icon')
 const colorThemeClass = computed(() => colorThemeClassName(currentTheme.value))
 const borderStyleClass = computed(() => borderStyleClassName(currentBorderStyle.value))
+const rootThemeClass = computed(() => rootThemeClassName(currentTheme.value))
+let stopThemeWatch: (() => void) | null = null
+
+const syncBodyThemeClass = () => {
+  if (!import.meta.client) return
+
+  document.body.classList.remove('theme-dragon-fire-cult')
+  if (rootThemeClass.value) {
+    document.body.classList.add(rootThemeClass.value)
+  }
+}
 
 const toggleSidebar = () => {
     isSidebarOpen.value = !isSidebarOpen.value
@@ -243,10 +255,15 @@ onMounted(async () => {
     currentBorderStyle.value = normalizeBorderStyle(data.value.window_border_style)
     currentAdminBadge.value = normalizeAdminBadge(data.value.admin_badge_style)
   }
+  stopThemeWatch = watch(rootThemeClass, syncBodyThemeClass, { immediate: true })
 })
 
 onUnmounted(() => {
   clearInterval(timer)
+  stopThemeWatch?.()
+  if (import.meta.client) {
+    document.body.classList.remove('theme-dragon-fire-cult')
+  }
 })
 </script>
 
