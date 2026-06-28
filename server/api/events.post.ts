@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
         .insert({
             name: body.name,
             window_title: body.window_title,
-            show_sponsored: body.show_sponsored !== undefined ? body.show_sponsored : true,
+            show_ads: body.show_ads ?? body.show_sponsored ?? true,
             status: 'scheduled',
             show_chat_history: true,
             is_active: false
