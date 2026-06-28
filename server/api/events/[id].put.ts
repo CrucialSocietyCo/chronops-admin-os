@@ -34,7 +34,8 @@ export default defineEventHandler(async (event) => {
     if (body.start_time !== undefined) updateData.start_time = body.start_time
     if (body.end_time !== undefined) updateData.end_time = body.end_time
     if (body.window_title !== undefined) updateData.window_title = body.window_title
-    if (body.show_sponsored !== undefined) updateData.show_sponsored = body.show_sponsored
+    if (body.show_ads !== undefined) updateData.show_ads = body.show_ads
+    else if (body.show_sponsored !== undefined) updateData.show_ads = body.show_sponsored
 
     updateData.updated_at = new Date().toISOString()
 

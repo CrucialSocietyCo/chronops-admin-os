@@ -44,7 +44,7 @@
                 <input type="checkbox" :checked="event.show_chat_history" @change="toggleHistory(event)" />
               </td>
               <td class="center">
-                <input type="checkbox" :checked="event.show_sponsored !== false" @change="toggleAds(event)" />
+                <input type="checkbox" :checked="event.show_ads !== false" @change="toggleAds(event)" />
               </td>
               <td>{{ new Date(event.created_at).toLocaleDateString() }}</td>
               <td class="actions">
@@ -147,10 +147,10 @@ const toggleHistory = async (event: any) => {
 
 const toggleAds = async (event: any) => {
   try {
-    const current = event.show_sponsored !== false // Default true
+    const current = event.show_ads !== false // Default true
     await $fetch(`/api/events/${event.id}`, {
       method: 'PUT',
-      body: { show_sponsored: !current }
+      body: { show_ads: !current }
     })
     loadEvents()
   } catch (err: any) {

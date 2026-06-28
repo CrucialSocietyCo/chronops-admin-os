@@ -28,7 +28,8 @@ export default defineEventHandler(async (event) => {
         event_id: activeEvent?.id || null,
         event_name: activeEvent?.name || 'General',
         window_title: activeEvent?.window_title || 'Arts and Entertainment', // Dynamic Title
-        show_sponsored: activeEvent ? activeEvent.show_sponsored : true,
+        show_ads: activeEvent ? activeEvent.show_ads : true,
+        showAds: activeEvent ? activeEvent.show_ads : true,
         show_history: activeEvent ? activeEvent.show_chat_history : true,
         chat_mode: normalizedSettings?.event_mode || 'Live Event',
         is_chat_enabled: normalizedSettings?.is_chat_enabled ?? true,
