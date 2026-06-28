@@ -128,6 +128,14 @@ const showEditor = ref(false)
 const editingItem = ref(null)
 const saving = ref(false)
 
+const getErrorMessage = (error) => {
+    return error?.data?.message
+        || error?.data?.statusMessage
+        || error?.statusMessage
+        || error?.message
+        || 'Unknown error'
+}
+
 const form = ref({
   type: 'daily_topic',
   content: { text: '', url: '', title: '', emoji: '' },
@@ -215,11 +223,34 @@ const toggleActive = async (item) => {
 }
 
 const deleteItem = async (id) => {
+    if (!id) {
+        const message = 'Cannot delete pinned item: missing database id.'
+        console.error('[PinnedItemsManager] Delete aborted:', message)
+        alert(message)
+        return
+    }
+
     if (!confirm('Are you sure you want to delete this pinned item?')) return
+
+    const endpoint = `/api/pinned-items/${id}`
+    console.log('[PinnedItemsManager] Deleting pinned item:', { id, endpoint })
+
     try {
-        await $fetch(`/api/pinned-items/${id}`, { method: 'DELETE' })
-        items.value = items.value.filter(i => i.id !== id)
-    } catch (e) { alert('Delete failed') }
+        await $fetch(endpoint, { method: 'DELETE' })
+        if (editingItem.value?.id === id) {
+            editingItem.value = null
+            showEditor.value = false
+        }
+        await fetchItems()
+    } catch (e) {
+        const message = getErrorMessage(e)
+        console.error('[PinnedItemsManager] Delete failed:', {
+            id,
+            endpoint,
+            error: e
+        })
+        alert(`Delete failed: ${message}`)
+    }
 }
 
 
