@@ -1,4 +1,5 @@
 import { serverSupabaseClient } from '#supabase/server'
+import { normalizeAestheticSettings } from '../../utils/aesthetics'
 
 export default defineEventHandler(async (event) => {
     const client = await serverSupabaseClient(event)
@@ -35,10 +36,10 @@ export default defineEventHandler(async (event) => {
                 spam_burst_auto_mute: false,
                 inactivity_cleanup_enabled: false,
                 inactivity_cleanup_hours: 24,
-                window_border_style: 'System95',
-                color_theme: 'Teal Base',
+                window_border_style: 'system95',
+                color_theme: 'teal_base',
                 scanline_intensity: 0,
-                admin_badge_style: 'Star Icon',
+                admin_badge_style: 'star_icon',
                 scheduled_system_messages_enabled: false,
                 auto_mode_transition_enabled: false
             })
@@ -61,5 +62,5 @@ export default defineEventHandler(async (event) => {
         })
     }
 
-    return data
+    return normalizeAestheticSettings(data)
 })

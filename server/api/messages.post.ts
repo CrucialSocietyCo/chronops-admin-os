@@ -1,6 +1,7 @@
 import { serverSupabaseClient, serverSupabaseUser, serverSupabaseServiceRole } from '#supabase/server'
 import { handleIncomingMessage, buildFingerprint } from '../utils/southmain-mod'
 import { ensurePersonaForActor, incrementStats } from '../utils/persona-manager'
+import { applyScheduledEventMode } from '../utils/scheduling'
 
 
 export default defineEventHandler(async (event) => {
@@ -275,7 +276,14 @@ Input message to rewrite:
         }
 
         const { data: activeEvent } = await client.from('events').select('id').eq('is_active', true).single()
-        const { data: settings } = await client.from('chat_settings').select('event_mode').single()
+        const scheduledSettings = await applyScheduledEventMode(event)
+        let settings = scheduledSettings
+
+        if (!settings) {
+            const { data } = await client.from('chat_settings').select('event_mode').single()
+            settings = data
+        }
+
         const currentMode = settings?.event_mode || 'Live Event'
 
         const insertPayload = {
@@ -329,5 +337,4 @@ Input message to rewrite:
         throw createError({ statusCode: 500, message: err.message })
     }
 })
-
 

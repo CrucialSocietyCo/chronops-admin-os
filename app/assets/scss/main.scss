@@ -3,13 +3,123 @@
 @use 'mixins' as *;
 
 body {
-    background-color: $bg-color;
+    background-color: var(--retro-surface, #{$bg-color});
     font-family: $font-family;
-    color: $text-color;
+    color: var(--retro-text, #{$text-color});
     margin: 0;
     padding: 0;
 }
 
 * {
     box-sizing: border-box;
+}
+
+:root,
+.color-theme-teal-base {
+    --retro-desktop-bg: #008080;
+    --retro-surface: #c0c0c0;
+    --retro-surface-alt: #d7d7d7;
+    --retro-text: #000000;
+    --retro-muted-text: #565656;
+    --retro-disabled-text: #808080;
+    --retro-input-bg: #ffffff;
+    --retro-active-bg: #000080;
+    --retro-active-text: #ffffff;
+    --retro-title-bg: linear-gradient(90deg, #000080, #0000b3);
+    --retro-title-text: #ffffff;
+    --retro-chart-bg: #ffffff;
+    --retro-chart-bar: #000080;
+}
+
+.color-theme-graphite {
+    --retro-desktop-bg: #2f4f4f;
+    --retro-surface: #b9c0c0;
+    --retro-surface-alt: #d1d7d7;
+    --retro-text: #111818;
+    --retro-muted-text: #405050;
+    --retro-disabled-text: #6b7474;
+    --retro-input-bg: #f1f4f4;
+    --retro-active-bg: #203030;
+    --retro-active-text: #ffffff;
+    --retro-title-bg: linear-gradient(90deg, #203030, #506868);
+    --retro-title-text: #ffffff;
+    --retro-chart-bg: #f1f4f4;
+    --retro-chart-bar: #203030;
+}
+
+.color-theme-noir-terminal {
+    --retro-desktop-bg: #050706;
+    --retro-surface: #101510;
+    --retro-surface-alt: #162016;
+    --retro-text: #b8ff9b;
+    --retro-muted-text: #75a86d;
+    --retro-disabled-text: #496549;
+    --retro-input-bg: #050806;
+    --retro-active-bg: #19d66b;
+    --retro-active-text: #001f0c;
+    --retro-title-bg: linear-gradient(90deg, #062a13, #0e5a28);
+    --retro-title-text: #d6ffc8;
+    --retro-chart-bg: #050806;
+    --retro-chart-bar: #19d66b;
+}
+
+.color-theme-crt-glow {
+    --retro-desktop-bg: #1a0526;
+    --retro-surface: #beb6c9;
+    --retro-surface-alt: #d8cee3;
+    --retro-text: #170321;
+    --retro-muted-text: #5d4967;
+    --retro-disabled-text: #81748a;
+    --retro-input-bg: #fff7ff;
+    --retro-active-bg: #4a006e;
+    --retro-active-text: #ffffff;
+    --retro-title-bg: linear-gradient(90deg, #4a006e, #9c27b0);
+    --retro-title-text: #ffffff;
+    --retro-chart-bg: #fff7ff;
+    --retro-chart-bar: #4a006e;
+}
+
+.color-theme-plum {
+    --retro-desktop-bg: #4b234f;
+    --retro-surface: #c9bccb;
+    --retro-surface-alt: #ded2e0;
+    --retro-text: #211123;
+    --retro-muted-text: #634966;
+    --retro-disabled-text: #867789;
+    --retro-input-bg: #fff7ff;
+    --retro-active-bg: #6d2a74;
+    --retro-active-text: #ffffff;
+    --retro-title-bg: linear-gradient(90deg, #6d2a74, #a64eae);
+    --retro-title-text: #ffffff;
+    --retro-chart-bg: #fff7ff;
+    --retro-chart-bar: #6d2a74;
+}
+
+:root,
+.border-style-system95 {
+    --retro-shadow-outset: inset -1px -1px #0a0a0a, inset 1px 1px #ffffff, inset -2px -2px #808080, inset 2px 2px #dfdfdf;
+    --retro-shadow-inset: inset -1px -1px #ffffff, inset 1px 1px #0a0a0a, inset -2px -2px #dfdfdf, inset 2px 2px #808080;
+    --retro-frame-border: none;
+    --retro-frame-radius: 0;
+}
+
+.border-style-hard-pixel {
+    --retro-shadow-outset: inset 0 0 0 2px #050505, inset 3px 3px #ffffff, inset -3px -3px #707070;
+    --retro-shadow-inset: inset 0 0 0 2px #050505, inset 3px 3px #707070, inset -3px -3px #ffffff;
+    --retro-frame-border: 1px solid #050505;
+    --retro-frame-radius: 0;
+}
+
+.border-style-slate-shell {
+    --retro-shadow-outset: inset 0 0 0 1px #0f172a, inset 2px 2px rgba(255, 255, 255, 0.35), inset -2px -2px rgba(15, 23, 42, 0.8);
+    --retro-shadow-inset: inset 0 0 0 1px #0f172a, inset 2px 2px rgba(15, 23, 42, 0.75), inset -2px -2px rgba(255, 255, 255, 0.32);
+    --retro-frame-border: 1px solid #1f2937;
+    --retro-frame-radius: 2px;
+}
+
+.border-style-vapor-mesh {
+    --retro-shadow-outset: inset 0 0 0 1px #2b1738, inset 2px 2px rgba(255, 255, 255, 0.48), inset -2px -2px rgba(83, 45, 115, 0.85);
+    --retro-shadow-inset: inset 0 0 0 1px #2b1738, inset 2px 2px rgba(83, 45, 115, 0.85), inset -2px -2px rgba(255, 255, 255, 0.48);
+    --retro-frame-border: 1px solid #4e2b68;
+    --retro-frame-radius: 2px;
 }

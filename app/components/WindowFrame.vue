@@ -45,9 +45,10 @@ const handleClose = () => {
 
 .window-frame {
   @include retro-window;
-  background-color: $bg-color;
   width: 100%;
   width: 100%;
+  border: var(--retro-frame-border);
+  border-radius: var(--retro-frame-radius);
   /* height: 100% removed to allow varying heights for masonry/grid */
   transition: all 0.3s ease-in-out;
   transform-origin: center;
@@ -78,8 +79,8 @@ const handleClose = () => {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: $bg-color;
-    color: $text-color;
+    background-color: var(--retro-surface);
+    color: var(--retro-text);
   }
 }
 

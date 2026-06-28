@@ -51,27 +51,37 @@
             <div class="form-group">
               <label>Border Style</label>
               <select v-model="settings.window_border_style" class="retro-select">
-                <option>System95</option>
-                <option>Hard Pixel</option>
-                <option>SlateShell</option>
-                <option>VaporMesh</option>
+                <option
+                  v-for="option in borderStyleOptions"
+                  :key="option.value"
+                  :value="option.value"
+                >
+                  {{ option.label }}
+                </option>
               </select>
             </div>
             <div class="form-group">
               <label>Color Theme</label>
               <select v-model="settings.color_theme" class="retro-select">
-                <option>Teal Base</option>
-                <option>Graphite</option>
-                <option>Noir Terminal</option>
-                <option>CRT Glow</option>
+                <option
+                  v-for="option in colorThemeOptions"
+                  :key="option.value"
+                  :value="option.value"
+                >
+                  {{ option.label }}
+                </option>
               </select>
             </div>
             <div class="form-group">
               <label>Admin Badge</label>
               <select v-model="settings.admin_badge_style" class="retro-select">
-                <option>Key Icon</option>
-                <option>Star Icon</option>
-                <option>System Icon</option>
+                <option
+                  v-for="option in adminBadgeOptions"
+                  :key="option.value"
+                  :value="option.value"
+                >
+                  {{ option.label }}
+                </option>
               </select>
             </div>
             <div class="apply-bar">
@@ -102,6 +112,15 @@
 import WindowFrame from '~/components/WindowFrame.vue'
 import RetroButton from '~/components/RetroButton.vue'
 import { ref, onMounted, onUnmounted } from 'vue'
+import {
+  adminBadgeOptions,
+  borderStyleOptions,
+  colorThemeOptions,
+  normalizeAdminBadge,
+  normalizeAestheticSettings,
+  normalizeBorderStyle,
+  normalizeColorTheme
+} from '~/utils/aesthetics'
 
 definePageMeta({
   layout: 'admin'
@@ -113,13 +132,15 @@ const saveMessage = ref('')
 const activityFeed = ref([])
 
 const settings = ref({
-  window_border_style: 'System95',
-  color_theme: 'Teal Base',
+  window_border_style: 'system95',
+  color_theme: 'teal_base',
   scanline_intensity: 0,
-  admin_badge_style: 'Star Icon'
+  admin_badge_style: 'star_icon'
 })
 
-const currentTheme = useState('adminTheme')
+const currentTheme = useState('adminTheme', () => 'teal_base')
+const currentBorderStyle = useState('adminBorderStyle', () => 'system95')
+const currentAdminBadge = useState('adminBadge', () => 'star_icon')
 
 const fetchActivity = async () => {
     try {
@@ -138,9 +159,11 @@ const fetchSettings = async () => {
     const data = await $fetch('/api/admin/house-controls')
     if (data) {
       if (data.event_mode) eventMode.value = data.event_mode
-      settings.value = { ...settings.value, ...data }
+      settings.value = normalizeAestheticSettings({ ...settings.value, ...data })
       // Sync state for immediate preview on load
-      if (data.color_theme) currentTheme.value = data.color_theme
+      currentTheme.value = normalizeColorTheme(settings.value.color_theme)
+      currentBorderStyle.value = normalizeBorderStyle(settings.value.window_border_style)
+      currentAdminBadge.value = normalizeAdminBadge(settings.value.admin_badge_style)
     }
   } catch (e) {
     console.error('Failed to load settings', e)
@@ -167,15 +190,17 @@ const applyMode = async () => {
 const saveSettings = async () => {
   try {
     saving.value = true
+    const normalizedSettings = normalizeAestheticSettings(settings.value)
     await $fetch('/api/admin/house-controls', {
       method: 'POST',
-      body: settings.value
+      body: normalizedSettings
     })
+    settings.value = normalizedSettings
     
-    // Update shared state for immediate background change
-    if (settings.value.color_theme) {
-      currentTheme.value = settings.value.color_theme
-    }
+    // Update shared state for immediate theme preview.
+    currentTheme.value = normalizeColorTheme(normalizedSettings.color_theme)
+    currentBorderStyle.value = normalizeBorderStyle(normalizedSettings.window_border_style)
+    currentAdminBadge.value = normalizeAdminBadge(normalizedSettings.admin_badge_style)
 
     saveMessage.value = 'Theme Applied!'
     setTimeout(() => saveMessage.value = '', 3000)
@@ -223,14 +248,14 @@ onUnmounted(() => {
     text-align: center;
     margin-top: 10px;
     
-    &.ok { color: green; }
+    &.ok { color: var(--retro-active-bg); }
     &.warning { color: #808000; }
   }
   
   .stat-label {
     font-size: 12px;
     text-align: center;
-    color: #666;
+    color: var(--retro-muted-text);
   }
 }
 
@@ -259,14 +284,14 @@ onUnmounted(() => {
   .mode-status {
     text-align: center;
     font-size: 10px;
-    color: #666;
+    color: var(--retro-muted-text);
     height: 12px;
     opacity: 0;
     transition: opacity 0.3s;
     
     &.visible {
       opacity: 1;
-      color: green;
+      color: var(--retro-active-bg);
       font-weight: bold;
     }
   }
@@ -324,10 +349,10 @@ onUnmounted(() => {
   display: flex;
   gap: 10px;
   padding: 4px;
-  border-bottom: 1px dotted #ccc;
+  border-bottom: 1px dotted var(--retro-muted-text);
   
-  .time { color: #666; }
-  .user { font-weight: bold; color: #000080; }
+  .time { color: var(--retro-muted-text); }
+  .user { font-weight: bold; color: var(--retro-active-bg); }
 }
 
 .mock-chart {
@@ -336,16 +361,14 @@ onUnmounted(() => {
   justify-content: space-around;
   height: 100%;
   padding: 10px;
-  border: 1px solid #ccc;
-  background: white;
+  border: 1px solid var(--retro-muted-text);
+  background: var(--retro-chart-bg);
   
   .bar {
     width: 10%;
-    background-color: #000080;
-    border: 1px solid black;
+    background-color: var(--retro-chart-bar);
+    border: 1px solid var(--retro-text);
     box-shadow: 2px 2px 0 rgba(0,0,0,0.2);
   }
 }
 </style>
-
-

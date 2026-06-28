@@ -1,5 +1,11 @@
 <template>
-  <div class="admin-desktop" :style="{ backgroundColor: backgroundColor }">
+  <div
+    class="admin-desktop"
+    :class="[borderStyleClass, colorThemeClass]"
+    :data-border-style="currentBorderStyle"
+    :data-color-theme="currentTheme"
+    :data-admin-badge="currentAdminBadge"
+  >
     <div class="address-bar">
       <span class="address-label">Address</span>
       <div class="address-input">
@@ -100,6 +106,13 @@ import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import WindowFrame from '~/components/WindowFrame.vue'
 import RetroButton from '~/components/RetroButton.vue'
+import {
+  borderStyleClassName,
+  colorThemeClassName,
+  normalizeAdminBadge,
+  normalizeBorderStyle,
+  normalizeColorTheme
+} from '~/utils/aesthetics'
 
 const route = useRoute()
 const router = useRouter()
@@ -111,17 +124,12 @@ const isChatEnabled = ref(false)
 const settingsId = ref<number | null>(null)
 const isSidebarOpen = ref(false)
 
-// Shared Theme State
-const currentTheme = useState('adminTheme', () => 'Teal Base')
-
-const themeMap: Record<string, string> = {
-  'Teal Base': '#008080',
-  'Graphite': '#2F4F4F',
-  'Noir Terminal': '#000000',
-  'CRT Glow': '#1a0526' 
-}
-
-const backgroundColor = computed(() => themeMap[currentTheme.value] || '#008080')
+// Shared aesthetics state used by the dashboard preview and layout chrome.
+const currentTheme = useState('adminTheme', () => 'teal_base')
+const currentBorderStyle = useState('adminBorderStyle', () => 'system95')
+const currentAdminBadge = useState('adminBadge', () => 'star_icon')
+const colorThemeClass = computed(() => colorThemeClassName(currentTheme.value))
+const borderStyleClass = computed(() => borderStyleClassName(currentBorderStyle.value))
 
 const toggleSidebar = () => {
     isSidebarOpen.value = !isSidebarOpen.value
@@ -137,6 +145,9 @@ const fetchSettings = async () => {
     if (data) {
       isChatEnabled.value = data.is_chat_enabled
       settingsId.value = data.id
+      currentTheme.value = normalizeColorTheme(data.color_theme)
+      currentBorderStyle.value = normalizeBorderStyle(data.window_border_style)
+      currentAdminBadge.value = normalizeAdminBadge(data.admin_badge_style)
     }
   } catch (e) {
     console.error('Failed to fetch settings', e)
@@ -228,7 +239,9 @@ onMounted(async () => {
   if (data.value) {
     if (data.value.is_chat_enabled !== undefined) isChatEnabled.value = data.value.is_chat_enabled
     if (data.value.id) settingsId.value = data.value.id
-    if (data.value.color_theme) currentTheme.value = data.value.color_theme
+    currentTheme.value = normalizeColorTheme(data.value.color_theme)
+    currentBorderStyle.value = normalizeBorderStyle(data.value.window_border_style)
+    currentAdminBadge.value = normalizeAdminBadge(data.value.admin_badge_style)
   }
 })
 
@@ -245,7 +258,9 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  transition: background-color 0.5s ease;
+  background: var(--retro-desktop-bg);
+  color: var(--retro-text);
+  transition: background-color 0.5s ease, color 0.5s ease;
 }
 
 .main-container {
@@ -261,8 +276,10 @@ onUnmounted(() => {
 .mobile-menu-toggle {
     display: none; /* Hidden on desktop */
     padding: 6px 10px;
-    background: #c0c0c0;
-    border: 2px outset #fff;
+    background: var(--retro-surface);
+    color: var(--retro-text);
+    box-shadow: var(--retro-shadow-outset);
+    border: var(--retro-frame-border);
     cursor: pointer;
     align-items: center;
     gap: 6px;
@@ -307,7 +324,7 @@ onUnmounted(() => {
       left: 0;
       bottom: 0;
       width: 250px; /* Slightly wider for ease of use */
-      background: #c0c0c0;
+      background: var(--retro-surface);
       box-shadow: 4px 0 10px rgba(0,0,0,0.5);
       
       /* Hidden Logic */
@@ -379,13 +396,13 @@ onUnmounted(() => {
   font-size: 14px;
 
   &:hover {
-    background-color: #000080;
-    color: white;
+    background-color: var(--retro-active-bg);
+    color: var(--retro-active-text);
   }
 
   &.active {
-    background-color: #000080;
-    color: white;
+    background-color: var(--retro-active-bg);
+    color: var(--retro-active-text);
     font-weight: bold;
   }
 
@@ -408,7 +425,7 @@ onUnmounted(() => {
 .action-label {
   font-size: 12px;
   font-weight: bold;
-  color: #666;
+  color: var(--retro-muted-text);
 }
 
 .active-state {
@@ -430,7 +447,7 @@ onUnmounted(() => {
 .start-menu-bar {
   @include retro-border-outset;
   height: 28px;
-  background-color: $bg-color;
+  background-color: var(--retro-surface);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -446,7 +463,7 @@ onUnmounted(() => {
     font-weight: bold;
     padding: 2px 6px;
     text-decoration: none;
-    color: black;
+    color: var(--retro-text);
     
     img {
       width: 16px;
@@ -487,7 +504,7 @@ onUnmounted(() => {
 }
 
 .address-bar {
-  background-color: $bg-color;
+  background-color: var(--retro-surface);
   padding: 4px;
   display: flex;
   align-items: center;
@@ -497,13 +514,13 @@ onUnmounted(() => {
 
   .address-label {
     font-size: 12px;
-    color: #404040;
+    color: var(--retro-muted-text);
   }
 
   .address-input {
     @include retro-border-inset;
     flex: 1;
-    background: white;
+    background: var(--retro-input-bg);
     padding: 2px 4px;
     display: flex;
     align-items: center;
@@ -533,12 +550,12 @@ onUnmounted(() => {
     align-items: center;
     gap: 4px;
     text-decoration: none;
-    color: black;
+    color: var(--retro-text);
     padding: 0 4px;
 
     &:hover {
-      background-color: #000080;
-      color: white;
+      background-color: var(--retro-active-bg);
+      color: var(--retro-active-text);
     }
   }
 
@@ -548,7 +565,7 @@ onUnmounted(() => {
   }
 
   .separator {
-    color: #808080;
+    color: var(--retro-muted-text);
     margin: 0 2px;
     font-size: 10px;
   }
