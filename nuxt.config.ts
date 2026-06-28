@@ -32,7 +32,10 @@ export default defineNuxtConfig({
     }
   },
 
-  css: ['~/assets/scss/main.scss'],
+  css: [
+    '~/assets/scss/main.scss',
+    '~/assets/scss/themes/dragon-fire-cult.css',
+  ],
 
   // We utilize server/middleware/cors.ts for granular CORS control
   // '/api/**': { cors: true },

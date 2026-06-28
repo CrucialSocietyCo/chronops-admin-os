@@ -129,6 +129,54 @@ const saving = ref(false)
 const error = ref('')
 const saveMessage = ref('')
 
+const scheduleDateFields = ['pre_show_time', 'live_event_time', 'afterparty_time'] as const
+
+const padDatePart = (value: number) => value.toString().padStart(2, '0')
+
+const toDatetimeLocalValue = (value: string | null | undefined) => {
+  if (!value) return ''
+
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return ''
+
+  const year = date.getFullYear()
+  const month = padDatePart(date.getMonth() + 1)
+  const day = padDatePart(date.getDate())
+  const hours = padDatePart(date.getHours())
+  const minutes = padDatePart(date.getMinutes())
+
+  return `${year}-${month}-${day}T${hours}:${minutes}`
+}
+
+const fromDatetimeLocalValue = (value: string | null | undefined) => {
+  if (!value) return null
+
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return null
+
+  return date.toISOString()
+}
+
+const formatScheduleForForm = (data: Record<string, any>) => {
+  const formatted = { ...data }
+
+  for (const field of scheduleDateFields) {
+    formatted[field] = toDatetimeLocalValue(formatted[field])
+  }
+
+  return formatted
+}
+
+const formatScheduleForSave = () => {
+  const payload: Record<string, any> = { ...settings.value }
+
+  for (const field of scheduleDateFields) {
+    payload[field] = fromDatetimeLocalValue(payload[field])
+  }
+
+  return payload
+}
+
 // Removed getModeDescription and applyMode as they are moved to Dashboard
 
 const freezeChat = () => {
@@ -170,7 +218,7 @@ const fetchSettings = async () => {
     loading.value = true
     const data = await $fetch('/api/admin/house-controls')
     if (data) {
-      settings.value = { ...settings.value, ...data }
+      settings.value = { ...settings.value, ...formatScheduleForForm(data) }
     }
   } catch (e: any) {
     error.value = 'Failed to load settings: ' + e.message
@@ -185,10 +233,14 @@ const saveSettings = async () => {
     saveMessage.value = ''
     error.value = ''
     
-    await $fetch('/api/admin/house-controls', {
+    const data = await $fetch('/api/admin/house-controls', {
       method: 'POST',
-      body: settings.value
+      body: formatScheduleForSave()
     })
+
+    if (data) {
+      settings.value = { ...settings.value, ...formatScheduleForForm(data) }
+    }
     
     saveMessage.value = 'Settings saved successfully!'
     setTimeout(() => {

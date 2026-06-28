@@ -1,7 +1,14 @@
 import { serverSupabaseClient } from '#supabase/server'
+import { applyScheduledEventMode } from '../../utils/scheduling'
+import { withPublicAestheticAliases } from '../../utils/aesthetics'
 
 export default defineEventHandler(async (event) => {
     const client = await serverSupabaseClient(event)
+    const scheduledSettings = await applyScheduledEventMode(event)
+
+    if (scheduledSettings) {
+        return withPublicAestheticAliases(scheduledSettings)
+    }
 
     const { data, error } = await client
         .from('chat_settings')
@@ -15,5 +22,5 @@ export default defineEventHandler(async (event) => {
         })
     }
 
-    return data
+    return withPublicAestheticAliases(data)
 })
