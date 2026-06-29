@@ -7,9 +7,10 @@ export default defineEventHandler(async (event) => {
     let { data, error } = await client
         .from('chat_settings')
         .select('*')
-        .single()
+        // The settings row is created lazily, so zero rows is valid on a fresh DB.
+        .maybeSingle()
 
-    if (error && error.code === 'PGRST116') {
+    if (!data && !error) {
         console.log('No settings found, creating default...')
         // No settings found, create default
         const { data: newData, error: insertError } = await client
@@ -54,7 +55,9 @@ export default defineEventHandler(async (event) => {
             })
         }
         data = newData
-    } else if (error) {
+    }
+
+    if (error) {
         console.error('Failed to fetch settings:', error)
         throw createError({
             statusCode: 500,
