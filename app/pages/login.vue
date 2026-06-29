@@ -1,16 +1,7 @@
 <template>
   <div class="login-container">
-    <WindowFrame :title="isSignUp ? 'System Registration' : 'System Login'">
+    <WindowFrame title="System Login">
       <form @submit.prevent="handleSubmit" class="login-form">
-        <div v-if="isSignUp" class="form-group">
-          <RetroInput
-            id="name"
-            label="Full Name"
-            type="text"
-            v-model="name"
-            placeholder="Admin User"
-          />
-        </div>
         <div class="form-group">
           <RetroInput
             id="email"
@@ -38,11 +29,8 @@
         </div>
 
         <div class="actions">
-          <a href="#" @click.prevent="toggleMode" class="toggle-link">
-            {{ isSignUp ? 'Back to Login' : 'Create Account' }}
-          </a>
           <RetroButton :disabled="loading">
-            {{ loading ? 'Processing...' : (isSignUp ? 'Register' : 'Login') }}
+            {{ loading ? 'Processing...' : 'Login' }}
           </RetroButton>
         </div>
       </form>
@@ -54,60 +42,12 @@
 const supabase = useSupabaseClient()
 const email = ref('')
 const password = ref('')
-const name = ref('')
 const loading = ref(false)
 const error = ref('')
 const message = ref('')
-const isSignUp = ref(false)
-
-const toggleMode = () => {
-  isSignUp.value = !isSignUp.value
-  error.value = ''
-  message.value = ''
-}
 
 const handleSubmit = async () => {
-  if (isSignUp.value) {
-    await handleSignUp()
-  } else {
-    await handleLogin()
-  }
-}
-
-const handleSignUp = async () => {
-  try {
-    loading.value = true
-    error.value = ''
-    message.value = ''
-    
-    console.log('Attempting signup with:', { email: email.value, name: name.value })
-
-    if (!name.value) throw new Error('Name is required')
-
-    const { data, error: authError } = await supabase.auth.signUp({
-      email: email.value,
-      password: password.value,
-      options: {
-        data: {
-          name: name.value
-        }
-      }
-    })
-
-    if (authError) {
-      console.error('Supabase Auth Error:', authError)
-      throw authError
-    }
-
-    console.log('Signup successful:', data)
-    message.value = 'Registration successful! Please check your email to confirm, or if auto-confirm is on, login now.'
-    isSignUp.value = false
-  } catch (e: any) {
-    console.error('Signup Exception:', e)
-    error.value = e.message
-  } finally {
-    loading.value = false
-  }
+  await handleLogin()
 }
 
 const handleLogin = async () => {
@@ -183,16 +123,8 @@ const handleLogin = async () => {
 
 .actions {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   margin-top: 8px;
-}
-
-.toggle-link {
-  font-family: $font-family;
-  font-size: 12px;
-  color: blue;
-  text-decoration: underline;
-  cursor: pointer;
 }
 </style>
