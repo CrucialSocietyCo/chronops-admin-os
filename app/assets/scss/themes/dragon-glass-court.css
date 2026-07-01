@@ -1,0 +1,656 @@
+/**
+ * DRAGON GLASS COURT - modern cinematic glass theme.
+ * Isolated to the saved color_theme value `dragon-glass-court`.
+ * This file intentionally removes retro window chrome for this mode only.
+ */
+
+body.theme-dragon-glass-court {
+    min-height: 100vh;
+    background:
+        var(--theme-bg-treatment),
+        var(--theme-bg);
+    background-attachment: fixed;
+    color: var(--theme-text);
+    font-family: var(--theme-body-font);
+}
+
+body.theme-dragon-glass-court .desktop,
+body.theme-dragon-glass-court .admin-desktop {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background:
+        var(--theme-bg-treatment),
+        var(--theme-bg);
+    color: var(--theme-text);
+    font-family: var(--theme-body-font);
+}
+
+body.theme-dragon-glass-court .desktop::before,
+body.theme-dragon-glass-court .admin-desktop::before {
+    content: "";
+    position: fixed;
+    inset: -18%;
+    z-index: -2;
+    pointer-events: none;
+    background:
+        radial-gradient(circle at 16% 82%, rgba(255, 75, 31, 0.22), transparent 24%),
+        radial-gradient(circle at 88% 18%, rgba(179, 25, 36, 0.18), transparent 28%),
+        radial-gradient(circle at 48% 112%, rgba(255, 75, 31, 0.26), transparent 38%);
+    filter: blur(12px);
+    animation: court-ember-drift 18s ease-in-out infinite alternate;
+}
+
+body.theme-dragon-glass-court .desktop::after,
+body.theme-dragon-glass-court .admin-desktop::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+        linear-gradient(115deg, transparent 0 18%, rgba(255, 255, 255, 0.035) 20%, transparent 23% 100%),
+        radial-gradient(circle at 50% 100%, rgba(255, 75, 31, 0.08), transparent 34%);
+    opacity: 0.9;
+    animation: court-smoke-sway 26s ease-in-out infinite alternate;
+}
+
+body.theme-dragon-glass-court .admin-desktop > *,
+body.theme-dragon-glass-court .desktop > * {
+    position: relative;
+    z-index: 1;
+}
+
+body.theme-dragon-glass-court .main-container {
+    padding: 18px;
+    gap: 18px;
+}
+
+body.theme-dragon-glass-court .desktop-area {
+    padding: 2px;
+}
+
+body.theme-dragon-glass-court .address-bar,
+body.theme-dragon-glass-court .start-menu-bar,
+body.theme-dragon-glass-court .mobile-menu-toggle {
+    background: rgba(16, 18, 22, 0.58);
+    border: 1px solid rgba(243, 213, 139, 0.16);
+    box-shadow: 0 16px 42px rgba(0, 0, 0, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    color: var(--theme-text);
+    backdrop-filter: blur(var(--theme-backdrop-blur));
+}
+
+body.theme-dragon-glass-court .address-bar {
+    min-height: 48px;
+    padding: 10px 16px;
+    border-width: 0 0 1px;
+}
+
+body.theme-dragon-glass-court .address-label {
+    color: var(--theme-muted-text);
+    font-family: var(--theme-body-font);
+    font-size: 12px;
+}
+
+body.theme-dragon-glass-court .address-input {
+    height: 30px;
+    background: rgba(5, 4, 5, 0.38);
+    border: 1px solid rgba(243, 213, 139, 0.13);
+    border-radius: 999px;
+    box-shadow: inset 0 1px 18px rgba(0, 0, 0, 0.26);
+    padding: 0 10px;
+}
+
+body.theme-dragon-glass-court .crumb-icon,
+body.theme-dragon-glass-court .start-button img,
+body.theme-dragon-glass-court .logout-button img,
+body.theme-dragon-glass-court .mobile-menu-toggle img {
+    display: none;
+}
+
+body.theme-dragon-glass-court .crumb-link,
+body.theme-dragon-glass-court .separator {
+    color: var(--theme-muted-text);
+    font-family: var(--theme-body-font);
+}
+
+body.theme-dragon-glass-court .crumb-link:hover {
+    color: var(--court-pale-gold);
+    background: transparent;
+}
+
+body.theme-dragon-glass-court .sidebar {
+    width: 240px;
+}
+
+body.theme-dragon-glass-court .sidebar-window {
+    min-height: 100%;
+}
+
+body.theme-dragon-glass-court .window-frame,
+body.theme-dragon-glass-court .stat-card,
+body.theme-dragon-glass-court .card,
+body.theme-dragon-glass-court .login-window,
+body.theme-dragon-glass-court .retro-modal-window,
+body.theme-dragon-glass-court .text-ad-container,
+body.theme-dragon-glass-court .gif-picker,
+body.theme-dragon-glass-court .emoticon-picker {
+    position: relative;
+    overflow: hidden;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.055), transparent 30%),
+        var(--theme-surface);
+    border: var(--theme-panel-border);
+    border-radius: var(--theme-panel-radius);
+    box-shadow: var(--theme-panel-shadow);
+    color: var(--theme-text);
+    backdrop-filter: blur(var(--theme-backdrop-blur));
+}
+
+body.theme-dragon-glass-court .window-frame::before,
+body.theme-dragon-glass-court .retro-modal-window::before,
+body.theme-dragon-glass-court .login-window::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: inherit;
+    padding: 1px;
+    background: var(--court-edge-light);
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    opacity: 0.72;
+}
+
+body.theme-dragon-glass-court .title-bar {
+    position: relative;
+    min-height: 54px;
+    padding: 18px 20px 10px;
+    margin: 0;
+    background: transparent;
+    color: var(--court-pale-gold);
+    border: 0;
+    box-shadow: none;
+}
+
+body.theme-dragon-glass-court .title-bar::after {
+    content: "";
+    position: absolute;
+    left: 20px;
+    right: 20px;
+    bottom: 0;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(243, 213, 139, 0), rgba(243, 213, 139, 0.48), rgba(255, 75, 31, 0.22), rgba(243, 213, 139, 0));
+}
+
+body.theme-dragon-glass-court .title-bar-text {
+    color: var(--court-pale-gold);
+    font-family: var(--theme-heading-font);
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-shadow: 0 0 22px rgba(255, 75, 31, 0.18);
+}
+
+body.theme-dragon-glass-court .title-bar-controls {
+    display: none;
+}
+
+body.theme-dragon-glass-court .window-body {
+    padding: 16px 18px 18px;
+}
+
+body.theme-dragon-glass-court .nav-menu {
+    gap: 6px;
+}
+
+body.theme-dragon-glass-court .nav-item {
+    min-height: 42px;
+    padding: 10px 12px;
+    border: 1px solid transparent;
+    border-radius: 14px;
+    color: var(--theme-muted-text);
+    font-family: var(--theme-body-font);
+    font-size: 14px;
+    transition: color 180ms ease, background 180ms ease, border-color 180ms ease, transform 180ms ease;
+}
+
+body.theme-dragon-glass-court .nav-item .icon {
+    display: none;
+}
+
+body.theme-dragon-glass-court .nav-item:hover,
+body.theme-dragon-glass-court .nav-item.active {
+    background: rgba(179, 25, 36, 0.18);
+    border-color: rgba(243, 213, 139, 0.2);
+    color: var(--court-bone);
+    transform: translateX(2px);
+}
+
+body.theme-dragon-glass-court .quick-actions {
+    border-top: 1px solid rgba(243, 213, 139, 0.14);
+    gap: 10px;
+    padding-top: 14px;
+}
+
+body.theme-dragon-glass-court .action-label,
+body.theme-dragon-glass-court .form-group label,
+body.theme-dragon-glass-court .checkbox-group label,
+body.theme-dragon-glass-court .radio-group label,
+body.theme-dragon-glass-court .subsection-label,
+body.theme-dragon-glass-court .stat-label,
+body.theme-dragon-glass-court .empty-state,
+body.theme-dragon-glass-court .loading-text {
+    color: var(--theme-muted-text);
+    font-family: var(--theme-body-font);
+}
+
+body.theme-dragon-glass-court button,
+body.theme-dragon-glass-court .retro-button,
+body.theme-dragon-glass-court .btn-primary,
+body.theme-dragon-glass-court .btn-icon,
+body.theme-dragon-glass-court .retro-btn,
+body.theme-dragon-glass-court .enter-button,
+body.theme-dragon-glass-court .send-btn,
+body.theme-dragon-glass-court .load-more-btn,
+body.theme-dragon-glass-court .format-buttons button {
+    min-height: 36px;
+    border: var(--theme-button-border);
+    border-radius: var(--theme-button-radius);
+    background: var(--theme-button-bg);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28), 0 0 16px rgba(179, 25, 36, 0.16);
+    color: var(--court-bone);
+    font-family: var(--theme-body-font);
+    font-size: 14px;
+    font-weight: 700;
+    transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease, border-color 160ms ease;
+}
+
+body.theme-dragon-glass-court button:hover,
+body.theme-dragon-glass-court .retro-button:hover,
+body.theme-dragon-glass-court .btn-primary:hover,
+body.theme-dragon-glass-court .retro-btn:hover,
+body.theme-dragon-glass-court .enter-button:hover,
+body.theme-dragon-glass-court .send-btn:hover {
+    background: var(--theme-button-hover);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.34), 0 0 26px rgba(255, 75, 31, 0.24);
+    transform: translateY(-1px);
+}
+
+body.theme-dragon-glass-court button:active,
+body.theme-dragon-glass-court .retro-button:active,
+body.theme-dragon-glass-court .btn-primary:active,
+body.theme-dragon-glass-court .retro-btn:active,
+body.theme-dragon-glass-court .enter-button:active,
+body.theme-dragon-glass-court .send-btn:active {
+    transform: translateY(0);
+    box-shadow: inset 0 2px 16px rgba(0, 0, 0, 0.36);
+}
+
+body.theme-dragon-glass-court button:disabled,
+body.theme-dragon-glass-court .disabled,
+body.theme-dragon-glass-court [aria-disabled='true'] {
+    color: var(--retro-disabled-text);
+    opacity: 0.58;
+    cursor: not-allowed;
+}
+
+body.theme-dragon-glass-court input,
+body.theme-dragon-glass-court textarea,
+body.theme-dragon-glass-court select,
+body.theme-dragon-glass-court .retro-select,
+body.theme-dragon-glass-court .retro-input,
+body.theme-dragon-glass-court .retro-textarea,
+body.theme-dragon-glass-court .font-select,
+body.theme-dragon-glass-court .gif-search,
+body.theme-dragon-glass-court .username-input,
+body.theme-dragon-glass-court .input-box {
+    min-height: 38px;
+    background: var(--theme-input-bg);
+    border: var(--theme-input-border);
+    border-radius: 14px;
+    box-shadow: inset 0 1px 18px rgba(0, 0, 0, 0.28);
+    color: var(--theme-text);
+    font-family: var(--theme-body-font);
+    outline: none;
+}
+
+body.theme-dragon-glass-court input::placeholder,
+body.theme-dragon-glass-court textarea::placeholder,
+body.theme-dragon-glass-court .input-box:empty:not(:focus)::before {
+    color: rgba(143, 138, 130, 0.78);
+}
+
+body.theme-dragon-glass-court input:focus,
+body.theme-dragon-glass-court textarea:focus,
+body.theme-dragon-glass-court select:focus,
+body.theme-dragon-glass-court .retro-select:focus,
+body.theme-dragon-glass-court .retro-input:focus,
+body.theme-dragon-glass-court .input-box:focus,
+body.theme-dragon-glass-court button:focus-visible,
+body.theme-dragon-glass-court a:focus-visible {
+    border-color: rgba(255, 75, 31, 0.54);
+    box-shadow: var(--theme-input-focus-ring);
+    outline: none;
+}
+
+body.theme-dragon-glass-court input[type="checkbox"],
+body.theme-dragon-glass-court input[type="radio"] {
+    accent-color: var(--court-fire);
+    min-height: auto;
+    box-shadow: none;
+}
+
+body.theme-dragon-glass-court .start-menu-bar {
+    height: 44px;
+    padding: 5px 10px;
+    border-width: 1px 0 0;
+}
+
+body.theme-dragon-glass-court .start-button,
+body.theme-dragon-glass-court .logout-button,
+body.theme-dragon-glass-court .clock {
+    background: rgba(5, 4, 5, 0.32);
+    border: 1px solid rgba(243, 213, 139, 0.12);
+    border-radius: 999px;
+    color: var(--theme-text);
+    box-shadow: none;
+}
+
+body.theme-dragon-glass-court .clock {
+    color: var(--court-pale-gold);
+    font-variant-numeric: tabular-nums;
+}
+
+body.theme-dragon-glass-court .stats-row {
+    height: auto;
+    min-height: 118px;
+}
+
+body.theme-dragon-glass-court .stat-value,
+body.theme-dragon-glass-court .kpi-value,
+body.theme-dragon-glass-court .page-title {
+    color: var(--court-pale-gold);
+    font-family: var(--theme-heading-font);
+    text-shadow: 0 0 20px rgba(255, 75, 31, 0.16);
+}
+
+body.theme-dragon-glass-court .mode-status.visible,
+body.theme-dragon-glass-court .stat-value.ok {
+    color: var(--court-pale-gold);
+}
+
+body.theme-dragon-glass-court .stat-value.warning,
+body.theme-dragon-glass-court .warning {
+    color: var(--court-fire);
+}
+
+body.theme-dragon-glass-court .activity-list {
+    font-family: var(--theme-body-font);
+    gap: 8px;
+}
+
+body.theme-dragon-glass-court .activity-item {
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(243, 213, 139, 0.12);
+}
+
+body.theme-dragon-glass-court .activity-item .time {
+    color: var(--theme-muted-text);
+    font-variant-numeric: tabular-nums;
+}
+
+body.theme-dragon-glass-court .activity-item .user,
+body.theme-dragon-glass-court .sender,
+body.theme-dragon-glass-court .sender.system {
+    color: var(--court-old-gold);
+}
+
+body.theme-dragon-glass-court .mock-chart {
+    background: rgba(5, 4, 5, 0.36);
+    border: 1px solid rgba(243, 213, 139, 0.14);
+    border-radius: 16px;
+}
+
+body.theme-dragon-glass-court .mock-chart .bar {
+    background: linear-gradient(180deg, var(--court-fire), var(--court-ember));
+    border: 1px solid rgba(243, 213, 139, 0.16);
+    border-radius: 999px 999px 4px 4px;
+    box-shadow: 0 0 18px rgba(255, 75, 31, 0.22);
+}
+
+body.theme-dragon-glass-court .login-container {
+    width: min(420px, calc(100vw - 32px));
+    color: var(--theme-text);
+}
+
+body.theme-dragon-glass-court .login-form {
+    gap: 18px;
+    padding: 18px;
+}
+
+body.theme-dragon-glass-court .error-message,
+body.theme-dragon-glass-court .status-message.error,
+body.theme-dragon-glass-court .text-danger {
+    color: #ff8a73;
+    border-color: rgba(255, 75, 31, 0.44);
+}
+
+body.theme-dragon-glass-court .success-message,
+body.theme-dragon-glass-court .status-message.success,
+body.theme-dragon-glass-court .success {
+    color: var(--court-pale-gold);
+    border-color: rgba(243, 213, 139, 0.36);
+}
+
+body.theme-dragon-glass-court .chat-history {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background:
+        radial-gradient(circle at 50% 100%, rgba(255, 75, 31, 0.08), transparent 36%),
+        rgba(5, 4, 5, 0.34);
+    border: 1px solid rgba(243, 213, 139, 0.14);
+    border-radius: 20px;
+    box-shadow: inset 0 1px 30px rgba(0, 0, 0, 0.32);
+    color: var(--theme-text);
+    font-family: var(--theme-chat-font);
+    padding: 14px;
+}
+
+body.theme-dragon-glass-court .message-line {
+    width: fit-content;
+    max-width: min(76ch, 92%);
+    padding: 10px 12px;
+    background: var(--theme-message-bg);
+    border: var(--theme-message-border);
+    border-radius: 16px;
+    color: var(--theme-text);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.24);
+}
+
+body.theme-dragon-glass-court .message-line.admin-line {
+    background: rgba(91, 11, 18, 0.52);
+    border: var(--theme-admin-badge-border);
+    box-shadow: 0 12px 30px rgba(91, 11, 18, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+body.theme-dragon-glass-court .message-line.system-line {
+    background: rgba(201, 154, 62, 0.12);
+    border-left: 3px solid var(--court-old-gold);
+}
+
+body.theme-dragon-glass-court .sender.admin,
+body.theme-dragon-glass-court .admin-name {
+    color: var(--court-pale-gold);
+}
+
+body.theme-dragon-glass-court .admin-star,
+body.theme-dragon-glass-court .badge,
+body.theme-dragon-glass-court .type-badge,
+body.theme-dragon-glass-court .status-badge,
+body.theme-dragon-glass-court .event-mode-pill,
+body.theme-dragon-glass-court .voice-drop-message .live-badge {
+    display: inline-flex;
+    align-items: center;
+    border: var(--theme-admin-badge-border);
+    border-radius: 999px;
+    background: var(--theme-admin-badge-bg);
+    color: var(--court-pale-gold);
+    box-shadow: 0 0 18px rgba(201, 154, 62, 0.12);
+}
+
+body.theme-dragon-glass-court .chat-input-area,
+body.theme-dragon-glass-court .toolbar {
+    background: rgba(16, 18, 22, 0.56);
+    border-color: rgba(243, 213, 139, 0.14);
+    color: var(--theme-text);
+    backdrop-filter: blur(var(--theme-backdrop-blur));
+}
+
+body.theme-dragon-glass-court .gif-option:hover,
+body.theme-dragon-glass-court .emoticon-option:hover,
+body.theme-dragon-glass-court .reaction-pills .pill.active {
+    background: rgba(179, 25, 36, 0.2);
+    border-color: rgba(255, 75, 31, 0.34);
+}
+
+body.theme-dragon-glass-court .text-ad,
+body.theme-dragon-glass-court .ad-body {
+    background: rgba(5, 4, 5, 0.48);
+    border-color: rgba(243, 213, 139, 0.14);
+    color: var(--theme-text);
+}
+
+body.theme-dragon-glass-court .ad-header,
+body.theme-dragon-glass-court .category-header {
+    background: rgba(91, 11, 18, 0.58);
+    color: var(--court-pale-gold);
+}
+
+body.theme-dragon-glass-court a,
+body.theme-dragon-glass-court .toggle-link,
+body.theme-dragon-glass-court .ad-content a,
+body.theme-dragon-glass-court .username-click:hover {
+    color: var(--court-fire);
+}
+
+body.theme-dragon-glass-court a:hover,
+body.theme-dragon-glass-court .toggle-link:hover,
+body.theme-dragon-glass-court .ad-content a:hover {
+    color: var(--court-pale-gold);
+}
+
+body.theme-dragon-glass-court .modal-overlay,
+body.theme-dragon-glass-court .sidebar-backdrop.visible {
+    background: rgba(5, 4, 5, 0.72);
+    backdrop-filter: blur(12px);
+}
+
+body.theme-dragon-glass-court .mobile-close-btn {
+    background: rgba(91, 11, 18, 0.84);
+    color: var(--court-bone);
+    border: 1px solid rgba(243, 213, 139, 0.22);
+    border-radius: 999px;
+}
+
+body.theme-dragon-glass-court .active-state {
+    background: rgba(201, 154, 62, 0.18) !important;
+    color: var(--court-pale-gold) !important;
+}
+
+body.theme-dragon-glass-court .inactive-state {
+    background: rgba(91, 11, 18, 0.34) !important;
+    color: #ff9a83 !important;
+}
+
+body.theme-dragon-glass-court .future-section,
+body.theme-dragon-glass-court .danger-zone {
+    border-color: rgba(243, 213, 139, 0.16);
+}
+
+body.theme-dragon-glass-court .actions-bar {
+    padding: 12px 0 0;
+}
+
+body.theme-dragon-glass-court ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+body.theme-dragon-glass-court ::-webkit-scrollbar-track {
+    background: var(--theme-scrollbar-track);
+}
+
+body.theme-dragon-glass-court ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--theme-scrollbar-thumb), rgba(179, 25, 36, 0.7));
+    border: 2px solid rgba(5, 4, 5, 0.72);
+    border-radius: 999px;
+}
+
+body.theme-dragon-glass-court * {
+    scrollbar-color: var(--theme-scrollbar-thumb) var(--theme-scrollbar-track);
+    scrollbar-width: thin;
+}
+
+@keyframes court-ember-drift {
+    from {
+        transform: translate3d(-1.5%, 1%, 0) scale(1);
+    }
+    to {
+        transform: translate3d(1.5%, -1%, 0) scale(1.04);
+    }
+}
+
+@keyframes court-smoke-sway {
+    from {
+        transform: translate3d(-1%, 0, 0);
+        opacity: 0.72;
+    }
+    to {
+        transform: translate3d(1%, -1%, 0);
+        opacity: 0.95;
+    }
+}
+
+@media (max-width: 768px) {
+    body.theme-dragon-glass-court .main-container {
+        padding: 12px;
+    }
+
+    body.theme-dragon-glass-court .address-bar {
+        display: none;
+    }
+
+    body.theme-dragon-glass-court .sidebar {
+        width: min(320px, 86vw);
+        background: rgba(16, 18, 22, 0.86);
+        backdrop-filter: blur(var(--theme-backdrop-blur));
+    }
+
+    body.theme-dragon-glass-court .stats-row,
+    body.theme-dragon-glass-court .content-grid {
+        display: flex;
+        flex-direction: column;
+    }
+
+    body.theme-dragon-glass-court .window-body {
+        padding: 14px;
+    }
+
+    body.theme-dragon-glass-court .message-line {
+        max-width: 100%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.theme-dragon-glass-court .desktop::before,
+    body.theme-dragon-glass-court .admin-desktop::before,
+    body.theme-dragon-glass-court .desktop::after,
+    body.theme-dragon-glass-court .admin-desktop::after,
+    body.theme-dragon-glass-court * {
+        animation: none !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}

@@ -2,6 +2,7 @@
   <div
     class="admin-desktop"
     :class="[borderStyleClass, colorThemeClass, rootThemeClass]"
+    :data-theme="currentTheme"
     :data-border-style="currentBorderStyle"
     :data-color-theme="currentTheme"
     :data-admin-badge="currentAdminBadge"
@@ -112,7 +113,8 @@ import {
   normalizeAdminBadge,
   normalizeBorderStyle,
   normalizeColorTheme,
-  rootThemeClassName
+  rootThemeClassName,
+  rootThemeClassNames
 } from '~/utils/aesthetics'
 
 const route = useRoute()
@@ -137,10 +139,11 @@ let stopThemeWatch: (() => void) | null = null
 const syncBodyThemeClass = () => {
   if (!import.meta.client) return
 
-  document.body.classList.remove('theme-dragon-fire-cult')
+  document.body.classList.remove(...rootThemeClassNames())
   if (rootThemeClass.value) {
     document.body.classList.add(rootThemeClass.value)
   }
+  document.body.dataset.theme = currentTheme.value
 }
 
 const toggleSidebar = () => {
@@ -255,14 +258,15 @@ onMounted(async () => {
     currentBorderStyle.value = normalizeBorderStyle(data.value.window_border_style)
     currentAdminBadge.value = normalizeAdminBadge(data.value.admin_badge_style)
   }
-  stopThemeWatch = watch(rootThemeClass, syncBodyThemeClass, { immediate: true })
+  stopThemeWatch = watch(currentTheme, syncBodyThemeClass, { immediate: true })
 })
 
 onUnmounted(() => {
   clearInterval(timer)
   stopThemeWatch?.()
   if (import.meta.client) {
-    document.body.classList.remove('theme-dragon-fire-cult')
+    document.body.classList.remove(...rootThemeClassNames())
+    delete document.body.dataset.theme
   }
 })
 </script>

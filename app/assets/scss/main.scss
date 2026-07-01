@@ -16,6 +16,33 @@ body {
 
 :root,
 .color-theme-teal-base {
+    --theme-bg: var(--retro-desktop-bg);
+    --theme-bg-treatment: var(--retro-desktop-bg);
+    --theme-surface: var(--retro-surface);
+    --theme-surface-alt: var(--retro-surface-alt);
+    --theme-panel-radius: var(--retro-frame-radius);
+    --theme-panel-border: var(--retro-frame-border);
+    --theme-panel-shadow: var(--retro-shadow-outset);
+    --theme-glass-opacity: 1;
+    --theme-backdrop-blur: 0;
+    --theme-heading-font: 'Courier New', Courier, monospace;
+    --theme-body-font: 'Courier New', Courier, monospace;
+    --theme-chat-font: 'Courier New', Courier, monospace;
+    --theme-button-radius: 0;
+    --theme-button-bg: var(--retro-surface);
+    --theme-button-border: none;
+    --theme-button-hover: var(--retro-surface-alt);
+    --theme-input-bg: var(--retro-input-bg);
+    --theme-input-border: none;
+    --theme-input-focus-ring: 1px dotted var(--retro-text);
+    --theme-message-bg: transparent;
+    --theme-message-border: 0;
+    --theme-admin-badge-bg: var(--retro-active-bg);
+    --theme-admin-badge-border: var(--retro-frame-border);
+    --theme-scrollbar-track: var(--retro-input-bg);
+    --theme-scrollbar-thumb: var(--retro-muted-text);
+    --theme-animation-intensity: 1;
+    --theme-ambient-effects: none;
     --retro-desktop-bg: #008080;
     --retro-surface: #c0c0c0;
     --retro-surface-alt: #d7d7d7;
@@ -141,6 +168,75 @@ body.theme-dragon-fire-cult,
 }
 
 /* Dragon Fire Cult component overrides are in themes/dragon-fire-cult.css */
+
+body.theme-dragon-glass-court,
+.color-theme-dragon-glass-court {
+    --court-obsidian: #050405;
+    --court-black-glass: rgba(16, 18, 22, 0.72);
+    --court-deep-wine: #21070b;
+    --court-blood: #5b0b12;
+    --court-ember: #b31924;
+    --court-fire: #ff4b1f;
+    --court-old-gold: #c99a3e;
+    --court-pale-gold: #f3d58b;
+    --court-bone: #f4ead7;
+    --court-smoke: #8f8a82;
+    --court-panel-shadow: 0 26px 80px rgba(0, 0, 0, 0.62), 0 0 42px rgba(179, 25, 36, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    --court-edge-light: linear-gradient(135deg, rgba(243, 213, 139, 0.34), rgba(255, 75, 31, 0.18) 38%, rgba(91, 11, 18, 0.45));
+    --court-smoke-field: radial-gradient(circle at 20% 18%, rgba(143, 138, 130, 0.14), transparent 28%), radial-gradient(circle at 82% 12%, rgba(179, 25, 36, 0.14), transparent 32%), radial-gradient(circle at 50% 118%, rgba(255, 75, 31, 0.24), transparent 42%);
+    --court-vignette: radial-gradient(circle at center, transparent 0 48%, rgba(0, 0, 0, 0.52) 100%);
+    --theme-bg: var(--court-obsidian);
+    --theme-bg-treatment:
+        var(--court-vignette),
+        var(--court-smoke-field),
+        linear-gradient(160deg, #050405 0%, #100508 45%, #21070b 100%);
+    --theme-surface: var(--court-black-glass);
+    --theme-surface-alt: rgba(33, 7, 11, 0.76);
+    --theme-panel-radius: 22px;
+    --theme-panel-border: 1px solid rgba(243, 213, 139, 0.22);
+    --theme-panel-shadow: var(--court-panel-shadow);
+    --theme-glass-opacity: 0.72;
+    --theme-backdrop-blur: 22px;
+    --theme-text: var(--court-bone);
+    --theme-muted-text: var(--court-smoke);
+    --theme-heading-font: "Cinzel", "Trajan Pro", "Cormorant Garamond", Georgia, serif;
+    --theme-body-font: "Inter", "Manrope", system-ui, sans-serif;
+    --theme-chat-font: "Inter", system-ui, sans-serif;
+    --theme-button-radius: 999px;
+    --theme-button-bg: linear-gradient(135deg, rgba(91, 11, 18, 0.92), rgba(179, 25, 36, 0.74) 48%, rgba(255, 75, 31, 0.72));
+    --theme-button-border: 1px solid rgba(243, 213, 139, 0.28);
+    --theme-button-hover: linear-gradient(135deg, rgba(128, 16, 25, 0.95), rgba(210, 37, 45, 0.84) 48%, rgba(255, 86, 36, 0.82));
+    --theme-input-bg: rgba(5, 4, 5, 0.58);
+    --theme-input-border: 1px solid rgba(243, 213, 139, 0.2);
+    --theme-input-focus-ring: 0 0 0 3px rgba(255, 75, 31, 0.22), 0 0 24px rgba(179, 25, 36, 0.22);
+    --theme-message-bg: rgba(16, 18, 22, 0.58);
+    --theme-message-border: 1px solid rgba(243, 213, 139, 0.13);
+    --theme-admin-badge-bg: linear-gradient(135deg, rgba(201, 154, 62, 0.22), rgba(179, 25, 36, 0.32));
+    --theme-admin-badge-border: 1px solid rgba(243, 213, 139, 0.42);
+    --theme-scrollbar-track: rgba(5, 4, 5, 0.62);
+    --theme-scrollbar-thumb: rgba(201, 154, 62, 0.72);
+    --theme-animation-intensity: 1;
+    --theme-ambient-effects: court-ambient;
+    --retro-desktop-bg: #050405;
+    --retro-surface: rgba(16, 18, 22, 0.72);
+    --retro-surface-alt: rgba(33, 7, 11, 0.76);
+    --retro-text: #f4ead7;
+    --retro-muted-text: #8f8a82;
+    --retro-disabled-text: rgba(143, 138, 130, 0.55);
+    --retro-input-bg: rgba(5, 4, 5, 0.58);
+    --retro-active-bg: #b31924;
+    --retro-active-text: #f4ead7;
+    --retro-title-bg: transparent;
+    --retro-title-text: #f3d58b;
+    --retro-chart-bg: rgba(5, 4, 5, 0.42);
+    --retro-chart-bar: #ff4b1f;
+    --retro-shadow-outset: var(--theme-panel-shadow);
+    --retro-shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.06), inset 0 0 28px rgba(0, 0, 0, 0.3);
+    --retro-frame-border: var(--theme-panel-border);
+    --retro-frame-radius: var(--theme-panel-radius);
+}
+
+/* Dragon Glass Court component overrides are in themes/dragon-glass-court.css */
 
 :root,
 .border-style-system95 {

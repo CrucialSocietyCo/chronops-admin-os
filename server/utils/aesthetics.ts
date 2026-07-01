@@ -36,7 +36,9 @@ export const normalizeColorTheme = (value: unknown) => normalizeFromMap(value, '
   crtglow: 'crt_glow',
   plum: 'plum',
   dragon_fire_cult: 'dragon_fire_cult',
-  dragonfirecult: 'dragon_fire_cult'
+  dragonfirecult: 'dragon_fire_cult',
+  dragon_glass_court: 'dragon-glass-court',
+  dragonglasscourt: 'dragon-glass-court'
 })
 
 export const normalizeAdminBadge = (value: unknown) => normalizeFromMap(value, 'star_icon', {
